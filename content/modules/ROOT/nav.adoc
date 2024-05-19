@@ -2,7 +2,8 @@
 * xref:index.adoc[Introduction]
 * xref:env.adoc[ラボ環境]
 
-**共通モジュール**
+* **共通モジュール**
+
 * xref:module-00.adoc[OpenShift Virtualization の基礎]
 ** xref:module-00.adoc#create_project[Create a New Project]
 ** xref:module-00.adoc#create_vm[Create a Linux Virtual Machine]
@@ -14,7 +15,8 @@
 ** xref:module-05.adoc#prerequisites[Prerequisites for Migrations]
 ** xref:module-05.adoc#migrating_vms[Migrating Virtual Machines from VMware]
 
-**仮想インフラ管理者向けモジュール**
+* **仮想インフラ管理者向けモジュール**
+
 * xref:module-01.adoc[2. Bare Metal Management ]
 ** xref:module-01.adoc#review_nodes[Review Nodes and Machines]
 ** xref:module-01.adoc#review_hosts[Review Bare Metal Hosts]

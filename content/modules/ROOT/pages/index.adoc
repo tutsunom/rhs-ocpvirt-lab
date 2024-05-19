@@ -1,7 +1,7 @@
-= はじめに
+= Red Hat OpenShift Virtualization workshop
 
 [%hardbreaks]
-== Red Hat OpenShift Virtualization を体験しよう: 仮想マシンのためのモダンなアプリケーションプラットフォーム
+== はじめに
 
 OpenShift Virtualization は、最新の Kubernetes ベースのインフラストラクチャ上に仮想マシンを導入することを可能にします。新しいアプリケーションの開発と提供、および既存のアプリケーションのモダナイゼーションを可能にし、仮想マシン、コンテナ、サーバレス機能で構成されるアプリケーションを、Kubernetes ネイティブのツールとパラダイムを使用してすべて一緒に管理することができます。
 
