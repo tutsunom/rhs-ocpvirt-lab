@@ -2,14 +2,19 @@
 * xref:index.adoc[Introduction]
 * xref:env.adoc[ラボ環境]
 
-
-* xref:module-00.adoc[1. Virtual Machine Management ]
+**共通モジュール**
+* xref:module-00.adoc[OpenShift Virtualization の基礎]
 ** xref:module-00.adoc#create_project[Create a New Project]
 ** xref:module-00.adoc#create_vm[Create a Linux Virtual Machine]
 ** xref:module-00.adoc#admin_vms[Administering Virtual Machines]
 ** xref:module-00.adoc#vm_state[Controlling Virtual Machine State]
 ** xref:module-00.adoc#live_migrate[Live Migrate a Virtual Machine]
 
+* xref:module-05.adoc[仮想マシンの移行]
+** xref:module-05.adoc#prerequisites[Prerequisites for Migrations]
+** xref:module-05.adoc#migrating_vms[Migrating Virtual Machines from VMware]
+
+**仮想インフラ管理者向けモジュール**
 * xref:module-01.adoc[2. Bare Metal Management ]
 ** xref:module-01.adoc#review_nodes[Review Nodes and Machines]
 ** xref:module-01.adoc#review_hosts[Review Bare Metal Hosts]
@@ -29,6 +34,4 @@
 ** xref:module-04.adoc#clone_customize_template[Clone and Customize a Template]
 ** xref:module-04.adoc#create_win[Create a Windows VM Template]
 
-* xref:module-05.adoc[6. Migrating Virtual Machines]
-** xref:module-05.adoc#prerequisites[Prerequisites for Migrations]
-** xref:module-05.adoc#migrating_vms[Migrating Virtual Machines from VMware]
+**仮想マシン管理者／ユーザ向けモジュール**
