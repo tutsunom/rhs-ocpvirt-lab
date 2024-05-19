@@ -1,11 +1,15 @@
-= Virtual Machine Management
+= OpenShift Virtualization の基礎
 
 
-== Introduction
+== はじめに
 
 The beginning section of this lab will introduce you to the basics of creating and managing VMs in OpenShift Virtualization. You will see how the web console guides you through the whole process of creating a virtual machine from a pre-defined template. We will then review the properties of that VM, do some basic customizations, and perform actions like live migration, that are often expected of virtual machine administrators. 
 
-.Goals
+このラボでは、OpenShift Virtualization における VM の作成と管理の基本について紹介します。Web コンソールがプロセス全体を通してどのようにあなたをガイドするか、そして VM のプロパティを確認し、基本的なカスタマイズを行うことがいかに簡単であるかを確認します。
+
+このラボでは、VM をプロビジョニングするためのいくつかの方法を紹介しますが、その他にも様々な方法があり、ここで紹介する方法だけに限られるわけではありません。すべての VM プロビジョニング方法は、サポートされているすべてのゲスト OS で動作します。
+
+.ゴール
 
 * Create a new virtual machine
 * Review and modify resources for virtual machines
