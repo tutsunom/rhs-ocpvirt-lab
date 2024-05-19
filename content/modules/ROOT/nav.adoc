@@ -1,5 +1,7 @@
 
 * xref:index.adoc[Introduction]
+* xref:env.adoc[ラボ環境]
+
 
 * xref:module-00.adoc[1. Virtual Machine Management ]
 ** xref:module-00.adoc#create_project[Create a New Project]
