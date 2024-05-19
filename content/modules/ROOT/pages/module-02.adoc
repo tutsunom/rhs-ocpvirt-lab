@@ -1,31 +1,36 @@
-= Storage Management
+:scrollbar:
+:toc2:
+:numbered:
+= ストレージ管理
 
-Red Hat OpenShift supports multiple types of storage, both for on-premises and cloud providers. OpenShift Virtualization can use any supported container storage interface (CSI) provisioner in the environment you're running on. For example, OpenShift Data Foundation, NetApp, Dell/EMC, Fujitsu, Hitachi, Pure Storage, Portworx, and many others support on-premises, CSI provisioned, ReadWriteMany (RWX) volumes with OpenShift Virtualization.
+== はじめに
 
-This workshop segment will explore Persistent Volume Claims (PVCs), which are used to request storage from the provider and store a VM disk. Many storage providers also support snapshots and clones of their devices, be sure to check with your vendor to verify the features supported by the CSI driver and storage device.
+Red Hat OpenShift は、オンプレミスとクラウドプロバイダーの両方で、複数のタイプのストレージをサポートしています。OpenShift Virtualization では、OpenShift を実行している環境で、さまざまなコンテナ・ストレージ・インターフェース (CSI) プロビジョナーを使用できます。例えば、OpenShift Data Foundation、NetApp、Dell/EMC、Fujitsu、Hitachi、Pure Storage、Portworx、その他多くの企業が、OpenShift Virtualization でオンプレミス、CSI プロビジョニング、ReadWriteMany (RWX) ボリュームをサポートしています。
 
-Notably, there are no restrictions on storage protocol (e.g. NFS, iSCSI, FC, etc.) specific to OpenShift Virtualization. The only requirement is that the RWX access mode is available to support live migration of VMs within the cluster. Otherwise, the storage that best meets the needs of your VMs and applications is always the right choice.
+このモジュールでは、ストレージプロバイダにストレージを要求し、VM ディスクを保存するために使用される Persistent Volume Claims (PVC) について探索します。多くのストレージプロバイダでは、ストレージデバイスのスナップショットやクローンもサポートしていますが、CSI ドライバやストレージでサポートされている機能については、必ずベンダに確認してください。
+
+特筆すべきこととして、OpenShift Virtualization には特有のストレージプロトコル (NFS, iSCSI, FC, など) の制限はありません。唯一の要件は、Live Migration のために  RWX アクセスモードが利用できることです。その他については、VM とアプリケーションの要求を最も満たすストレージが常に正しい選択です。
 
 image::module-02/00_disk_concepts.png[link=self, window=blank, width=100%]
 
 [[examine_pvc]]
 
-== Examine the PVC for a VM
+== 仮想マシンの PVC を確認
 
-In this lab, we are going to take a closer look at the storage behind the virtual machine we just created *fedora01*. 
+このセクションでは、先ほど作成した `fedora01` VM の背後にあるストレージを詳しく見ていきます。
 
-. Start by clicking on the left menu for *Storage* -> *Persistent Volume Claims*. Make sure you are in the *vmexamples* namespace, you should see the *fedora01* VM from the previous section listed.
+. 左メニューで *Storage* -> *PersistentVolumeClaims* をクリックします。*vmexamples* プロジェクトにいることを確認し、`fedora01` PVC が表示されていることを確認してください。
 +
 //add image
 +
-. Click on the *fedora01* VM and you will be presented with a screen that shows additional details about the storage volume backing the VM. 
+. `fedora01` をクリックすると、VM のバックエンドにあるストレージボリュームの詳細が表示されます。
 +
-. Notice the following information about the persistent volume claim:
-.. The PVC is currently bound successfuly
-.. The PVC has a requested capacity and size of 30GiB
-.. The Access mode of the PVC is ReadWriteMany (RWX)
-.. The Volume mode of the PVC is Block
-.. The volume is using the *ocs-storagecluster-ceph-rbd-virtualization* storage class. 
+. この PVC には以下のような情報が表示されます。
+.. ステータスは `Bound`（正常にバインドされている）
+.. 要求された容量と割り当てられた容量は 30GiB
+.. Access mode は *ReadWriteMany (RWX)*
+.. Volume mode は *Block*
+.. StorageClass は *ocs-storagecluster-ceph-rbd-virtualization*
 +
 image::module-02/02_Fedora01_PVC_Details.png[link=self, window=blank, width=100%]
 
