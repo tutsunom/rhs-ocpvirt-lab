@@ -1,118 +1,127 @@
-= Bare Metal Machine Management
+:scrollbar:
+:toc2: 
 
-== Introduction
+:numbered:
+= ベアメタル OpenShift
 
-In this lab, you will review the physical environment used during this workshop, including an overview of OpenShift deployed to bare metal hosts. This environment runs on bare metal hosts in the Equinix cloud. This review will help provide you with an understanding of how the nodes are configured in the cluster, and what their current hardware capabilities are. You will then be tasked with adding an additional machine and scaling the number of cluster nodes using the Red Hat OpenShift web console.
+== はじめに
 
-.Goals
-* Explore the nodes and machines in your *Red Hat OpenShift Container Platform* cluster
-* Scale the baremetal cluster using the web console
+このラボでは、ベアメタルホストにデプロイされた OpenShift の概要を含め、このワークショップが使用している環境を確認します。
+このモジュールでは、クラスタ内のノードがどのように構成されているか、また現在のハードウェア機能を理解することができます。その後、Red Hat OpenShift Web コンソールを使用してマシンを追加し、クラスターノード数をスケーリングします。
 
-=== Supported Platforms
+.ゴール
+* *Red Hat OpenShift Container Platform* クラスタのノードと *Machines* を探索する。
+* Web コンソールを使ってクラスタを拡張する。
 
-Today, OpenShift virtualization is fully supported in the following environments that provide bare metal resources:
+=== サポートされるプラットフォーム
 
-* Self-managed _bare metal servers_ on-premises or at a hosted site that provides bare metal resources. The lab you're using today is an OpenShift cluster deployed to an Equinix colocation facility.
+現在、OpenShift Virtualization は、ベアメタルリソースを提供する以下の環境でサポートされています。
 
-* Amazon Web Services (AWS) bare metal instances, as well as ROSA (Red Hat OpenShift Services on AWS) with bare metal instances, are fully supported. See link:https://www.redhat.com/en/blog/managing-virtual-machines-and-containers-as-code-with-openshift-virtualization-on-red-hat-openshift-service-on-aws[OpenShift Virtualization on ROSA^]. 
+* OpenShift Virtualization は、オンプレミスのベアメタルサーバ、または、共同のクラウド環境のような場所でユーザが管理するベアメタルサーバでサポートされています。本日使用しているラボは、Equinix のベアメタルサーバにデプロイされた OpenShift クラスタです。
 
-* IBM Cloud Bare Metal Servers are currently _tech preview_. See link:https://access.redhat.com/articles/6738731[Deploy OpenShift Virtualization on IBM Cloud Bare Metal Nodes^] for details.
+* Amazon Web Services (AWS) のベアメタルインスタンス、およびベアメタルインスタンスを備えた ROSA (Red Hat OpenShift Services on AWS) はサポートされています。link:https://www.redhat.com/en/blog/managing-virtual-machines-and-containers-as-code-with-openshift-virtualization-on-red-hat-openshift-service-on-aws[OpenShift Virtualization on ROSA^]. 
+
+* IBM Cloud Bare Metal Servers はテクノロジープレビューです。link:https://access.redhat.com/articles/6738731[Deploy OpenShift Virtualization on IBM Cloud Bare Metal Nodes for details].
 
 [NOTE]
-Installing OpenShift Virtualization on IBM Cloud Bare Metal Servers is a Technology Preview feature only. Technology Preview features are not supported with Red Hat production service level agreements (SLAs) and might not be functionally complete. Red Hat does not recommend using them in production. Technology previews provide early access to upcoming product features, enabling customers to test functionality and provide feedback during the development process.
+テクノロジープレビュー機能は、Red Hat のプロダクション環境でのサービスレベル契約 (SLAs) でサポートされておらず、機能的に完全でない可能性があります。Red Hat はこれらをプロダクション環境で使用することを推奨しません。これらの機能は、今後リリースされる製品機能への早期アクセスを提供するもので、お客様は開発プロセスにおいて機能をテストし、Red Hat にフィードバックを提供することができます。
 
-=== Requirements for OpenShift Virtualization
+=== OpenShift Virtualization の要件
+Red Hat OpenShift Container Platform に OpenShift Virtualization をインストールする前に、Red Hat OpenShift Container Platform クラスタが以下の要件を満たしていることを確認してください。
 
-Before you install OpenShift Virtualization for Red Hat OpenShift Container Platform, make sure that your Red Hat OpenShift Container Platform cluster meets the following requirements.
+* CPU 要件
+** Red Hat Enterprise Linux (RHEL) 8/9 でのサポート
+** Intel 64 または AMD64 Extention のサポート
+** Intel VT または AMD-V ハードウェア仮想化拡張機能が有効
+** NX (no execute) bit が有効
 
-* CPU requirements:
-** Supported by Red Hat Enterprise Linux (RHEL) 8/9
-** Support for Intel 64 or AMD64 CPU extensions
-** Intel VT or AMD-V hardware virtualization extensions enabled
-** NX (no execute) flag enabled
+* ストレージ要件
+** OpenShift をサポート
+** CSI プロビジョナー (CSI ドライバ) を強く推奨
+** Live Migration をする場合は *ReadWriteMany (RWX)* PVC が必要
+** CSI プロビジョナーによるクローンおよびスナップショットが利用可能な場合は、ストレージ側の高速なデータコピーが可能となるため、テンプレートからの VM 作成がより早くなります。もし利用できない場合は、OpenShift Virtualization はホストベースのコピーで行います。
 
-* Storage requirements:
-** Supported by OpenShift
-** A CSI provisioner is strongly encouraged
-** *ReadWriteMany* (RWX) PVCs are required for live migration
-** A CSI provisioner that supports accelerated volume creation via CSI clones or snapshots makes creating VMs from templates much faster. If one is not available, OpenShift Virtualization will fallback to using a host copy
+* OpenShift クラスタノード要件
+** Red Hat Enterprise Linux CoreOS (RHCOS) がインストールされた Worker ノード
+** 仮想マシンのワークロードをホストするのに充分な CPU、メモリ、ネットワーク帯域
 
-* OpenShift cluster node requirements:
-** Red Hat Enterprise Linux CoreOS (RHCOS) installed on worker nodes
-** CPU, memory, and network capacity sufficient to host your virtual machine workload
+OpenShift Virtualization のハードウェアに関する特定の要件とガイダンスについては、 https://docs.openshift.com/container-platform/4.15/virt/install/preparing-cluster-for-virt.html[ドキュメント] を確認してください。
 
-Review the documentation https://docs.openshift.com/container-platform/4.15/virt/install/preparing-cluster-for-virt.html[here^] for specific requirements and guidance on hardware for use with OpenShift Virtualization.
+[NOTE]
+例えば Intel と AMD など、異なる CPU が Worker ノードで使用されている場合、CPU が持つ機能が異なるため、Live Migration に失敗する可能性があります。
 
-NOTE: If your cluster uses worker nodes with different CPUs, e.g. Intel and AMD, live migration failures can occur because different CPUs have different capabilities. 
+[[manage_hardware]]
+== OpenShift のハードウェア管理
 
-=== Review Red Hat OpenShift Cluster
+インストーラ・プロビジョニング・インフラストラクチャ (IPI) 方式を使用してデプロイする場合は、OpenShift は https://metal3.io/[Metal3] を使って out-of-band な管理コントローラを使ってハードウェアを管理します。この結果、ハードウェアはクラスタ内で 3 つの異なるリソースで表現されます。
 
-When deployed using the installer provisioned infrastructure (IPI) method, OpenShift uses https://metal3.io/[Metal3^] to manage the hardware using the out-of-band management controller. This results in the hardware being represented in three different ways in the cluster:
-
-. https://docs.openshift.com/container-platform/4.15/nodes/index.html[Node^] - The node is viewed and used by the Kubernetes scheduler. This is the object which represents the usable resources in the cluster.
-. https://docs.openshift.com/container-platform/4.15/machine_management/index.html[Machine^] - An object managed by an infrastructure provider. In this lab, and when using OpenShift Virtualization, this is a physical server that is abstracted by the Metal3 Operator. These are grouped and managed as a set via the https://docs.openshift.com/container-platform/4.15/machine_management/creating_machinesets/creating-machineset-bare-metal.html[MachineSet^] paradigm.
-. https://docs.openshift.com/container-platform/4.15/scalability_and_performance/managing-bare-metal-hosts.html[BareMetalHost^] - This is the lowest level and direct interaction with the management of the physical server.
+. https://docs.openshift.com/container-platform/4.15/nodes/index.html[Node^] - Kubernetes スケジューラによって表示、使用されます。これはクラスタ内で使用可能なリソースを表すオブジェクトです。
+. https://docs.openshift.com/container-platform/4.15/machine_management/index.html[Machine^] - インフラストラクチャプロバイダーによって管理されるオブジェクトです。このラボでは、OpenShift Virtualization を使用する場合、Metal3 Operator によって抽象化された物理サーバを表します。Machine は https://docs.openshift.com/container-platform/4.15/machine_management/creating_machinesets/creating-machineset-bare-metal.html[MachineSet^] によってグループ化され、セットで管理されます。
+. https://docs.openshift.com/container-platform/4.15/scalability_and_performance/managing-bare-metal-hosts.html[BareMetalHost^] - 物理サーバの管理で最もローレベルで、直接的なインタラクションです。
 
 [[review_nodes]]
-== Review Nodes and Machines
+=== Node のレビュー
 
-. From the navigation menu on the left, select *Compute* -> *Nodes*:
+Red Hat OpenShift とのほぼすべてのやり取りは、OpenShift Web コンソールで行うことができます。Web コンソールは管理者もユーザーも同様に使用する、ガイド付きのフル機能の Web アプリケーションです。ほとんどのタスクにウィザードが用意されており、システムの管理を容易にします。
+
+. 左メニューから *Compute* -> *Nodes* に移動します。
 +
 image::module-01/01_Compute_Nodes.png[link=self, window=blank, width=100%]
 +
-There are three control plane nodes and three worker nodes in the OpenShift 4 Cluster. In addition, *ipmi* (Intelligent Platform Management Interface) is being used to manage the bare metal nodes.
+3 つの Control Plane ノードと、3 つの Worker ノードが確認できます。それぞれの管理用アドレスには *ipmi* (Intelligent Platform Management Interface) が使われています。
 +
-A node is a virtual or bare metal machine in an OpenShift cluster. Worker nodes host virtual machines and other workloads. The control plane nodes run services that are required to control and manage the OpenShift cluster.
+一般的に、OpenShift クラスタノードは仮想マシンまたはベアメタルサーバです。Worker ノードは VM やその他のワークロードをホストします。Control Plane ノードは OpenShift クラスタの制御と管理に必要なサービスを実行します。
 
-. Click on one of the worker nodes to obtain resource information about the node:
+. Worker ノードのいずれかをクリックして、ノードに関するリソース情報を取得します。
 +
 image::module-01/02_Worker0_Information.png[link=self, window=blank, width=100%]
 +
-The *Overview* tab is showing useful information about the utilization of the resources, such as CPU and memory. It also shows all the applications (*Pods*) that are running inside on this node.
+*Overview* タブには、CPU やメモリなどのリソースの使用状況に関する有益な情報が表示されます。また、このノード内で実行されている全てのアプリケーション (*Pods*) も表示されます。
 
-NOTE: At least one physical node is required for OpenShift Virtualization, "nesting" and emulation are not supported. However, other nodes in the cluster can be virtual machines, for example control plane and infrastructure nodes.
+[NOTE]
+OpenShift Virtualization には少なくとも 1 つのベアメタル Worker ノードが必要です。"Nesting" (仮想マシンノードの上で仮想マシンを実行する) やエミュレーションはサポートされていません。一方で、Control Plane ノードや Infra ノードなどについては、仮想マシンにすることは可能です。
 
-. Navigate to the tab *Details* to obtain more information about the operating system.
+. *Details* タブに移動して、ノードの OS の詳細情報を取得します。
 +
 image::module-01/03_Worker0_Details.png[link=self, window=blank, width=100%]
 
 [[review_hosts]]
-== Review Bare Metal Hosts
+=== BareMetalHost のレビュー
 
-When using *Baseboard Management Controller (BMC)* it is possible to manage the nodes using the *Red Hat OpenShift* console. If you are still in the *vmexamples* project you will not be able to see the nodes, you will need to change your project to *openshift-machine-api* or to *All Projects* to view the nodes currently available in the cluster.
+ベースボード管理コントローラ `(BMC)` を使用している場合、OpenShift Web コンソールを使用してベアメタルノードを管理することができます。プロジェクトを  *openshift-machine-api* または *All Projects* に変更することで、クラスタで利用可能なベアメタルノードを表示する必要があります。
 
-. Select *Compute* -> *Bare Metal Hosts*:
+. *Compute* -> *Bare Metal Hosts* に移動します。
 +
 image::module-01/04_BMHosts.png[link=self, window=blank, width=100%]
 +
-During installation, the *Control Plane* nodes are provisioned by the OpenShift Container Platform installation program (that is why the status is *Externally provisioned*) and when the control plane is ready, the *Worker* nodes are provisioned by cluster itself (hence the status *Provisioned*) and joined to the cluster.
+インストール中、*Control Plane* ノードは OpenShift Container Platform インストーラによってプロビジョニングされます。ステータスが `Externally provisioned` になっているのはそのためです。クラスタコントロールプレーンの準備ができたら、次は *Worker* ノードがクラスタ自身によってプロビジョニングされます。ステータスが `Provisioned` になっているのはそのためです。
 
-. Click on any of the worker nodes to obtain information about the physical (bare metal) node:
+. いずれかの Worker ノードをクリックし、ベアメタルノードに関する情報を取得します。
 +
 image::module-01/05_Worker0_BMHost.png[link=self, window=blank, width=100%]
 +
-The information shown is similar to the *Nodes* one, with the exception is providing information related to the hardware and the physical status of the bare metal node. Using the *Actions* menu, it is possible to manage aspects of the bare metal host, such as restarting or stopping the system using *BMC*.
+表示される情報は *Nodes* と似ていますが、ベアメタルノードのハードウェアと物理的なステータスに関連する情報が表示されます。*Actions* メニューを使用すると、*BMC* を使用してシステムの再起動や停止など、ベアメタルホストの状態を管理することができます。
 
-. Explore the other tabs in the interface to see more details about the hosts, including the network interfaces and disks. Additionally, the host can be *Deprovisioned*, which will result in it being removed from the cluster, RHCOS removed, and the machine marked as ready to configure.
+. ネットワークインターフェースやディスクの詳細を見るには、他のタブを探検してください。さらに、ホストは *Deprovisioned* することができ、クラスタから取り除かれ、RHCOS は削除され、マシンはまっさらな状態になります。
 
 [[scaling_cluster]]
-== Scaling the Cluster with a New Bare Metal Host
+== 新しいベアメタルホストの追加
 
-IMPORTANT: Before you begin this section of the lab, you need to switch to the *openshift-machine-api* project or you will not be able to see the machines, and  machine discovery will not work. You may need to toggle the *Show default projects* switch to see the project in the drop-down list.
+IMPORTANT: このセクションを開始する前に、画面上部のプロジェクトのドロップダウンリストで *openshift-machine-api* プロジェクトに切り替える必要があります。このプロジェクトが表示されない場合は、ドロップダウンリストで *Show default projects* トグルスイッチを On にしてください。
 
-In many cases it becomes necessary to add additonal physical nodes to a cluster to meet workload demands. In a virtual deployment of OpenShift, this is as simple as clicking on the appropriate machine set and choosing the scale the number of nodes available, and the hypervisor responds by cloning a VM template and spinning up new workers. In a bare metal environment there are a few more steps involved, but it's still a fairly simple process if you have the hardware available and access to the servers through a BMC that supports the IPMI protocol.
+多くの場合、ワークロードの需要を満たすためにクラスタにノードを追加する必要があります。 +
+仮想サーバを使った OpenShift クラスタでは、適切な *MachineSet* をクリックして必要なノード数を指定するだけで、ハイパーバイザが VM テンプレートをクローンして新しい Worker ノードをスピンアップすることができます。 +
+ベアメタル環境ではもう少し多くのステップが必要ですが、同じようにノードをスケールすることができます。利用可能なハードウェアがあり、IPMI プロトコルをサポートする BMC を通じてサーバにアクセスできるのであれば、かなりシンプルに行えます。
 
-To begin this process we are going to return to the bare metal hosts screen we reviewed earlier:
-
-. Select *Compute* -> *Bare Metal Hosts*:
+. *Compute* -> *Bare Metal Hosts* に移動します。
 +
 image::module-01/04_BMHosts.png[link=self, window=blank, width=100%]
 +
-. Click on the *Add Host* button in the upper right corner, and select the *New with Dialog* option.
+. 右上の *Add Host* ボタンをクリックし、*New with Dialog* オプションを選択します。
 +
 image::module-01/06_Add_Host_Red.png[link=self, window=blank, width=100%]
 +
-. The dialog menu to add a bare metal host will ask you for the following information:
+. ベアメタルホストを追加するダイアログメニューでは、既に用意されている以下のマシンの情報を入力します。
 +
 * Host Name: *worker4*
 * Boot MAC Address: *de:ad:be:ef:00:07*
@@ -120,21 +129,21 @@ image::module-01/06_Add_Host_Red.png[link=self, window=blank, width=100%]
 * BMC Username: *admin*
 * BMC Password: *redhat* 
 +
-. With this information filled out, click the *Create* button at the bottom of the dialog page.
+. 入力したらダイアログページの一番下にある *Create* をクリックします。
 +
 image::module-01/07_Create_Host_Red.png[link=self, window=blank, width=100%]
 +
-. You will then be presented with the summary screen for *worker4*, and you will see the status update as it attempts to contact the machine and make it available as a host.
+. その後、*worker4* のサマリ画面が表示されます。マシンと通信してホストとして利用できるようにしている状態が見られます。
 +
 image::module-01/08_Worker4_Summary_1.png[link=self, window=blank, width=100%]
 +
-NOTE: This step may take several minutes to update as it powers up the host, and collects hardware information.
+NOTE: このステップはマシンに電源を入れ、ハードウェア情報を収集するため、数分かかる場合があります。
 +
-. When host discovery and hardware inspection is complete you will see that it shows it's status as *Available*.
+. ホストの検出とハードウェアの検査が完了すると、ステータスが *Available* と表示されます。
 +
 image::module-01/09_Worker4_Summary_2.png[link=self, window=blank, width=100%]
 +
-. Because this lab is being hosted in a virtualized environment we need to make a small configuration change before continuing. Click on the *YAML* tab at the top, and add the following two lines to the end of the *spec:* section to modify the type of hard disk present on the machine. Click the *Save* button.
+. 上部の *YAML* タブをクリックし、次の 2 行を *spec:* セクションの最後に追加して、マシンに存在するハードディスクのタイプを変更します。
 +
 [source,yaml,role=execute]
 ----
@@ -144,43 +153,40 @@ image::module-01/09_Worker4_Summary_2.png[link=self, window=blank, width=100%]
 +
 image::module-01/09a_Worker4_Yaml_Edit.png[link=self, window=blank, width=100%]
 +
-. Once a host has been physically discovered the next step is to add it as a machine to be used by OpenShift. Click on the menu for *MachineSets* on the left under *Compute*.
+入力したら *Save* ボタンをクリックします。
++
+. ホストが物理的に検出されたら、次は OpenShift クラスタに *Machine* として追加します。左メニューで *Compute* -> *MachineSets* をクリックします。
 +
 image::module-01/10_Machinesets.png[link=self, window=blank, width=100%]
 +
-. Click on the *three-dot* menu on the top-right side, and select *Edit Machine count* from the dropdown menu.
+. *MachineSet* の行の右端にある三点メニューから *Edit Machine count* を選択します。
 +
 image::module-01/11_Edit_Machine_Count.png[link=self, window=blank, width=100%]
 +
-. A new menu will appear showing the current machine count of *3*, click the plus (+) sign to increase the machine count to *4*.
+. ポップアップが表示され、現在の *Machine* の数である *3* が表示されます。プラス (+) 記号をクリックして、*4* に増やします。
 +
 image::module-01/12_Edit_Machine_Count_4.png[link=self, window=blank, width=100%]
 +
-. You will be returned to the MachineSets page, and you can now see that the count of machines is 3/4 machines.
+. *MachineSet* のページに戻り、*Machine* のカウントが 3/4 と表示されていることがわかります。
 +
 image::module-01/13_Machine_Count_3_4.png[link=self, window=blank, width=100%]
 +
-. Next, click on the *Machines* button on the left under *Compute* to see a list of all the machines, and you should see worker4 in the *Provisioning* state. 
+. 次に、左メニューから *Compute* -> *MachineSets* をクリックすると、全ての *Machines* のリストが表示されます。先ほど追加した `worker4` が *Provisioning* 状態になっているはずです。
 +
-NOTE: This step can take a few minutes to complete, as the node reboots several times during the installation process. Please be patient.
+NOTE: インストールプロセス中にノードが数回再起動するため、このステップの完了には数分かかることがあります。
 +
 image::module-01/14_Worker_4_Provisioning.png[link=self, window=blank, width=100%]
 +
-. Once provisioning is complete you will see the node listed with it's Phase set to *Provisioned as node*.
+. プロビジョニングが完了すると、*Provisioned as node* に設定された *Machine* が表示されます。
 +
 image::module-01/15_Provisioned_As_Node.png[link=self, window=blank, width=100%]
 +
-. Since our new host has now been added to the machineset and provisioned as a node, we can now see it available if we click on the *Nodes* menu on the left.
+. 左メニューから *Compute* -> *Nodes* をクリックすると、ノードとして `worker4` が確認できます。名前をクリックすることで詳細な情報を見ることができます。割り当てられた Pod の数になどに加えて、CPU とメモリの使用率などといったハードウェア情報が記載されていることがわかります。
 +
 image::module-01/16_All_Nodes.png[link=self, window=blank, width=100%]
 +
-. We can also click directly on *worker4* under the *Name* column to see it's current status.
-+
 image::module-01/17_Worker_4_Details.png[link=self, window=blank, width=100%]
-+
-. The details screen for worker4 is now populated with hardware information including CPU and Memory utilization, as well as the number of Pods assigned to our new worker node.
 
-== Summary
+== まとめ
 
-In this lab, you became familiar with your Red Hat OpenShift cluster and the hardware that makes up the environment. You also used the web console to expand your cluster by discovering an additional bare metal node, and adding it to the cluster machineset used to scale the number of worker nodes that are available.
-
+このモジュールでは、OpenShift クラスタとその環境を構成するハードウェアについて学びました。また、Web コンソールを使用して追加のベアメタルノードを検出し、利用可能な Worker ノード数を拡張するために使用する、Machine Set に追加することで、クラスタを拡張しました。

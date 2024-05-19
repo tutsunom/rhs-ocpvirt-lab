@@ -1,74 +1,86 @@
-= Virtual Machine Management
+:scrollbar:
+:toc2:
+:numbered:
 
+= OpenShift Virtualization の基礎
 
-== Introduction
+== はじめに
+このラボでは、OpenShift Virtualization における VM の作成と管理の基本について紹介します。Web コンソールがプロセス全体を通してどのようにあなたをガイドするか、そして VM のプロパティを確認し、基本的なカスタマイズを行うことがいかに簡単であるかを確認します。
 
-The beginning section of this lab will introduce you to the basics of creating and managing VMs in OpenShift Virtualization. You will see how the web console guides you through the whole process of creating a virtual machine from a pre-defined template. We will then review the properties of that VM, do some basic customizations, and perform actions like live migration, that are often expected of virtual machine administrators. 
+このラボでは、VM をプロビジョニングするためのいくつかの方法を紹介しますが、その他にも様々な方法があり、ここで紹介する方法だけに限られるわけではありません。すべての VM プロビジョニング方法は、サポートされているすべてのゲスト OS で動作します。
 
-.Goals
+.ゴール
 
-* Create a new virtual machine
-* Review and modify resources for virtual machines
-* Understand how VM power states are managed using the OpenShift console
-* Live migrate a VM between two hosts
+* 新規の仮想マシンの作成
+* 仮想マシンのリソースの確認と変更
+* OpenShift コンソールを使った仮想マシンの電源状態の管理
+* 2 つのノード間での仮想マシンの Live Migration
 
-As a reminder, here are your credentials for the OpenShift Console:
+あなたの OpenShift コンソールは以下のリンク先からアクセスできます。
 
-Your OpenShift cluster console is available {openshift_web_console}[here^].
+{openshift_web_console}
 
-Administrator login is available with:
+管理者ユーザのログイン情報は次の通りです。
 
 * *User:* {openshift_admin_user} 
 * *Password:* {openshift_admin_password}
 
 [[create_project]]
-== Create a New Project
+== 新しいプロジェクトの作成
 
-Like other objects in OpenShift, Projects (which are an abstraction for Kubnernetes namespaces), are the boundaries for permissions and other aspects of using and manaing the resources. Creating a Project is an important first step for any deployment.
+OpenShift の他のオブジェクトと同様に、Kubnernetes の Namespace を抽象化した *Project* は、パーミッションやリソースを使用・管理するための境界となります。プロジェクトの作成はあらゆるワークロードをデプロイする際の重要な第一歩です。
 
-. Browse to *Virtualization* -> *VirtualMachines* using the left navigation menu:
+. 左メニューの *Virtualization* -> *VirtualMachines* に移動します。
 +
 image::module-00/01_Left_Menu.png[link=self, window=blank, width=100%]
 +
 [NOTE]
 ====
-The *Virtualization* tab is available only when Red Hat OpenShift Virtualization is installed and properly configured. In this lab environment the installation and configuration has already been performed for us.
+*Virtualization* メニューは、OpenShift Virtualization がインストールされ、適切に設定されている場合に使用できます。
 ====
 
-. Examine the *VirtualMachines* dashboard that appears. There are currently several VMs listed, but they are not turned on:
+. 表示される *VirtualMachines* ダッシュボードを確認します。いくつかの VM がリストされていますが、いずれもパワーオンになっていません。
 +
 image::module-00/02_VM_List.png[link=self, window=blank, width=100%]
 
-. Before creating a VM we need to create a new project. Virtual machines are deployed to a specific project, or namespace, where by default, users without permission to the namespace cannot access, manage, or control them. Administrators can access all projects, and therefore view all virtual machines, however regular users must be given access to projects as needed.
+. VM を作成する前に、新しいプロジェクトを作成します。一般的に VM は特定のプロジェクトにデプロイされ、そのプロジェクトへのアクセス権限を持たないユーザからは、VM にアクセス、管理、制御はできません。クラスタ管理者はすべてのプロジェクトにアクセスできるため、すべての VM を見ることができます。
 +
-.. Click *Project: All Projects* at the lop left of the window and then click *Create Project*.
+.. *Project: All Projects* をクリックし、*Create Project* をクリックします。
 +
 image::module-00/02_All_Projects.png[link=self, window=blank, width=100%]
 
-.. In the *Name* field, type *vmexamples* to name the project, then click *Create*.
+.. *Name* フィールドに **`vmexamples`** と入力してプロジェクト名を付け、*Create* をクリックします。
 +
 image::module-00/03_Create_Project.png[link=self, window=blank, width=100%]
 
 [[create_vm]]
-== Create a Linux Virtual Machine
+== 新しい仮想マシンの作成
+VM 作成は、管理者にとって最も頻繁に実行するタスクの1つです。このセクションでは、事前に作成されたテンプレートを使用して新しい VM を作成するプロセスを説明します。管理者は、様々なカスタマイズを行って独自のテンプレートを作成することができます。
 
-. From the Virtual Machines inventory, click on the *Create VirtualMachine* button and select *From template* from the drop-down menu. 
-+
-NOTE: VMs can also be created from an InstanceType wizard as well as created by entering a custom YAML definition, but for this current lab scenario we are going to stick with creating VMs based on existing templates.
+ここでは以下の方法で VM を作成します。それぞれで入力する情報が異なる場所を注目しながら作成していきましょう。
+
+. テンプレートから Linux VM を作成
+. テンプレートから Windows VM を作成
+
+NOTE: VM は InstanceType ウィザードから作成することも、カスタム YAML 定義を入力して作成することもできますが、今回のラボでは既存のテンプレートに基づいて VM を作成することにします。
+
+=== テンプレートから Linux VM を作成
+
+. *VirtualMachines* メニューから *Create VirtualMachine* をクリックします。
 +
 image::module-00/04_Create_VM_Button.png[link=self, window=blank, width=100%]
 
-. The wizard will appear showing the available pre-defined VM templates. 
+. ウィザードが表示され、利用可能な定義済みの VM テンプレートが表示されます。
 +
-Reviewing the list of available templates you’ll notice that some have a blue badge which indicates "Source available". These are templates which are using automatically downloaded and stored template source disks. If you were deploying in your own environment, you have the option of preventing these from being created and/or removing those source disks, followed by creating and uploading custom disks for your organization.
+利用可能なテンプレートのリストを確認すると、"Source available" を示す青いバッジが付いているものがあることに気づくでしょう。これらは、自動的にダウンロードされ保存されたテンプレート・ディスクを使用しているテンプレートです。自分の環境にデプロイする場合、これらのソース・ディスクが作成されないようにしたり、削除したりするオプションがあります。
 +
 image::module-00/05_Create_VM_Templates.png[link=self, window=blank, width=100%]
 
-. Select the *Fedora VM* tile, and a dialog opens.
+. *Fedora VM* をクリックすると、ダイアログが開きます。
 +
 image::module-00/06_Create_VM_Quick.png[link=self, window=blank, width=100%]
 
-. Change the name to *fedora01* and press *Quick create VirtualMachine*:
+. *VirtualMachine name* を `fedora01` に変更し、*Quick create VirtualMachine* をクリックします。
 +
 image::module-00/07_Create_VM_Quick_Name.png[link=self, window=blank, width=100%]
 
@@ -77,18 +89,229 @@ image::module-00/07_Create_VM_Quick_Name.png[link=self, window=blank, width=100%
 +
 image::module-00/08_Fedora_Running.png[link=self, window=blank, width=100%]
 
-. After the VM is created, examine the *Events* tab to see some details of the process. If there are any issues with the creation of the VM, they will show up on this tab as well.
+. 数秒後、作成した VM が `Running` であることが確認できるでしょう。VM が作成されたら、作成のプロセスの詳細を確認するために *Events* タブを見てみましょう。もし VM の作成に問題があっても、このタブに表示されます。
 +
 image::module-00/09_Fedora_Events.png[link=self, window=blank, width=100%]
 +
-* A _DataVolume_ is created. _DataVolumes_ are used to manage the creation of a VM disk, abstracting the clone or import process onto OpenShift native storage during the virtual machine's creation flow.
-* The _VM_ is started.
+* はじめに _DataVolume_ が作成されます。_DataVolume_ は VM ディスクの作成を管理するために使われ、VM 作成のフローにおいてクローンやインポートの処理を OpenShift の永続ストレージ上に抽象化しています。
+* その後、_VM_ が起動します。
 
-. Click the *Overview* tab to return to the primary screen detailing information related to the VM. Note that for this template, the default is 1 CPU and 2 GiB of memory. As the administrator, you can create templates that customize the default configuration of virtual machines. Later in this lab we will have the opportunity to explore the creation of custom templates.
+. VMに関する情報を取得するには、*Details* タブをクリックします。このテンプレートでは、デフォルトで 1 CPU と 2GiB メモリであることを確認してみましょう。管理者は、VM のデフォルト構成をカスタマイズして新しいテンプレートを作成できます。
 +
-The IP address of the virtual machine on the software-defined network (SDN) is also displayed on this page, along with information about the storage devices, system utilization, the cluster node hosting the virtual machine, and more. By default VMs are attached to the default pod network. Later in this lab we will explore advanced networking options, and how to customize connectivity for VMs.
+SDN (Software-defined Network) 上の VM の IP アドレスも、ストレージデバイス、システム使用率、VM をホストするクラスタノードなどの情報とともに、このページに表示されます。デフォルトでは、VM は Pod Network に接続されています。後段のラボでは、高度なネットワーキング・オプションと、VM の接続性をカスタマイズする方法を探ります。
 +
 image::module-00/10_Fedora_Details.png[link=self, window=blank, width=100%]
+
+[[create_win]]
+=== テンプレートから Windows VM を作成
+次に事前に定義されている Windows VM のテンプレートを使って新しい VM を作成します。
+
+先の Fedora VM と違って、Windows VM のテンプレートには仮想ディスクイメージの PVC が作られていません。したがって、別の場所からブートイメージをダウンロードする必要があります。 
+ここでは、Web サーバ上にホストされている ISO イメージを使って Microsoft Windows Server 2019 をインストールします。これは、Web サーバやオブジェクトストレージ、またはクラスタ内の他の PV など、様々な場所にあるディスクをソースとすることができる機能を利用して、VM に OS をインストールする方法の 1 つです。
+
+このプロセスは、VM からテンプレートを作成することで最初の OS のインストール後に効率化できます。テンプレートとして使うゲスト OS を準備する具体的なプロセスは組織によって異なります。あなたの組織ガイドラインと要件に従うようにしてください。
+
+. 左メニューから *Virtualization* -> *Catalog* に移動し、上部の *Template catalog* タブをクリックします。
++
+image::module-04/16_Template_Catalog.png[link=self, window=blank, width=100%]
++
+. 下にスクロールして、*Microsoft Windows Server 2019 VM* を選択します。
++
+image::module-04/17_Windows_2k19_Tile.png[link=self, window=blank, width=100%]
++
+. テンプレートに関するデフォルトの構成を示すダイアログが表示されます。
++
+NOTE: デフォルトの Windows Server 用テンプレートでは、ソース・ディスクとなる仮想ディスクイメージがないため、*Quick create VirtualMachine* のオプションはありません。ニーズに合わせて VM をカスタマイズすることになります。
++
+image::module-04/18_Windows_2k19_Dialog.png[link=self, window=blank, width=100%]
++
+. ダイアログでは次のように入力します。
+.. *Name* : `windows`
+.. *Boot from CD* チェックボックスを有効化
+.. *CD source* : `URL (creates PVC)`
+.. *Image URI* : `http://192.168.123.100:81/Windows2019.iso`
+.. *Disk size* : `5 GiB`
+.. *Disk source* : `Blank`
+.. *Disk size* : `60 GiB`
+.. *Mount Windows drivers disk* チェックボックスを有効化。**これは Windows システム向けの VirtIO 用のドライバを提供するために必要です。**
++
+image::module-04/19_Windows_2k19_Parameters.png[link=self, window=blank, width=100%]
++
+. オプションの入力が完了したら、一番下にある *Customize VirtualMachine* をクリックして、カスタマイズを続行します。
++
+. *Customize and create VirtualMachine* の画面で、*Scripts* タブをクリックします。下にスクロールし *Sysprep* セクションの *Edit* をクリックします。
++
+image::module-04/20_Customize_Scripts.png[link=self, window=blank, width=100%]
++
+.*Sysprep* のアクションを作成するためのポップアップが表示されます。
++
+image::module-04/21_Sysprep.png[link=self, window=blank, width=100%]
++
+. *Autounattend.xml answer file* のフォームに、以下のコードをコピー&ペーストします。
++
+[source,xml,role=execute]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:schemas-microsoft-com:unattend">
+  <settings pass="windowsPE">
+    <component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <DiskConfiguration>
+        <Disk wcm:action="add">
+          <CreatePartitions>
+            <CreatePartition wcm:action="add">
+              <Order>1</Order>
+              <Extend>true</Extend>
+              <Type>Primary</Type>
+            </CreatePartition>
+          </CreatePartitions>
+          <ModifyPartitions>
+            <ModifyPartition wcm:action="add">
+              <Active>true</Active>
+              <Format>NTFS</Format>
+              <Label>System</Label>
+              <Order>1</Order>
+              <PartitionID>1</PartitionID>
+            </ModifyPartition>
+          </ModifyPartitions>
+          <DiskID>0</DiskID>
+          <WillWipeDisk>true</WillWipeDisk>
+        </Disk>
+      </DiskConfiguration>
+      <ImageInstall>
+        <OSImage>
+          <InstallFrom>
+            <MetaData wcm:action="add">
+              <Key>/IMAGE/NAME</Key>
+              <Value>Windows Server 2019 SERVERSTANDARD</Value>
+            </MetaData>
+          </InstallFrom>
+          <InstallTo>
+            <DiskID>0</DiskID>
+            <PartitionID>1</PartitionID>
+          </InstallTo>
+        </OSImage>
+      </ImageInstall>
+      <UserData>
+        <AcceptEula>true</AcceptEula>
+        <FullName>Administrator</FullName>
+        <Organization>My Organization</Organization>
+      </UserData>
+      <EnableFirewall>false</EnableFirewall>
+    </component>
+    <component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <SetupUILanguage>
+        <UILanguage>en-US</UILanguage>
+      </SetupUILanguage>
+      <InputLocale>en-US</InputLocale>
+      <SystemLocale>en-US</SystemLocale>
+      <UILanguage>en-US</UILanguage>
+      <UserLocale>en-US</UserLocale>
+    </component>
+  </settings>
+  <settings pass="offlineServicing">
+    <component name="Microsoft-Windows-LUA-Settings" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <EnableLUA>false</EnableLUA>
+    </component>
+  </settings>
+  <settings pass="specialize">
+    <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <AutoLogon>
+        <Password>
+          <Value>R3dh4t1!</Value>
+          <PlainText>true</PlainText>
+        </Password>
+        <Enabled>true</Enabled>
+        <LogonCount>999</LogonCount>
+        <Username>Administrator</Username>
+      </AutoLogon>
+      <OOBE>
+        <HideEULAPage>true</HideEULAPage>
+        <HideLocalAccountScreen>true</HideLocalAccountScreen>
+        <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+        <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+        <NetworkLocation>Work</NetworkLocation>
+        <ProtectYourPC>3</ProtectYourPC>
+        <SkipMachineOOBE>true</SkipMachineOOBE>
+      </OOBE>
+      <UserAccounts>
+        <LocalAccounts>
+          <LocalAccount wcm:action="add">
+            <Description>Local Administrator Account</Description>
+            <DisplayName>Administrator</DisplayName>
+            <Group>Administrators</Group>
+            <Name>Administrator</Name>
+          </LocalAccount>
+        </LocalAccounts>
+      </UserAccounts>
+      <TimeZone>Eastern Standard Time</TimeZone>
+    </component>
+  </settings>
+  <settings pass="oobeSystem">
+    <component name="Microsoft-Windows-International-Core" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <InputLocale>en-US</InputLocale>
+      <SystemLocale>en-US</SystemLocale>
+      <UILanguage>en-US</UILanguage>
+      <UserLocale>en-US</UserLocale>
+    </component>
+    <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <AutoLogon>
+        <Password>
+          <Value>R3dh4t1!</Value>
+          <PlainText>true</PlainText>
+        </Password>
+        <Enabled>true</Enabled>
+        <LogonCount>999</LogonCount>
+        <Username>Administrator</Username>
+      </AutoLogon>
+      <OOBE>
+        <HideEULAPage>true</HideEULAPage>
+        <HideLocalAccountScreen>true</HideLocalAccountScreen>
+        <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+        <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+        <NetworkLocation>Work</NetworkLocation>
+        <ProtectYourPC>3</ProtectYourPC>
+        <SkipMachineOOBE>true</SkipMachineOOBE>
+      </OOBE>
+      <UserAccounts>
+        <LocalAccounts>
+          <LocalAccount wcm:action="add">
+            <Description>Local Administrator Account</Description>
+            <DisplayName>Administrator</DisplayName>
+            <Group>Administrators</Group>
+            <Name>Administrator</Name>
+          </LocalAccount>
+        </LocalAccounts>
+      </UserAccounts>
+      <TimeZone>Eastern Standard Time</TimeZone>
+    </component>
+  </settings>
+</unattend>
+----
++
+. *Save* をクリックします。
++
+image::module-04/22_Windows_2k19_Sysprep.png[link=self, window=blank, width=100%]
++
+. *Customize and create Virtual Machine* 画面に戻ったら、*Disks* タブをクリックします。*installation-cdrom* の行で右端の三点メニューをクリックし、*Edit* を選びます。
++
+image::module-04/23_Edit_Boot_Media.png[link=self, window=blank, width=100%]
++
+. *Use this disk as a boot source* をチェックし、*Save* をクリックします。
++
+image::module-04/24_Boot_Source.png[link=self, window=blank, width=100%]
++
+. *Disks* タブに戻ったら、*Create VirtualMachine* をクリックします。
+. VM は ISO イメージのダウンロード、設定、インスタンスの起動によって、プロビジョニングプロセスを開始します。
++
+image::module-04/25_Windows_2k19_Provisioning.png[link=self, window=blank, width=100%]
++
+. 数分後、`windows` VM が `Running` ステータスになります。*Console* タブに切り替えると、Windows のインストールプロセスが進んでいることが確認できます。
++
+image::module-04/26_Windows_2k19_Console.png[link=self, window=blank, width=100%]
++
+NOTE: `Running` ステータスの横に、`Not migratable` と表示されていますが、これは CD-ROM ディスクが接続されているためです。インストール完了後に、CD-ROM ディスクを取り外すと Migration できるようになります。
++
+IMPORTANT: Windows のインストールが完了するまで待つ必要はありません。次の項目に進んで下さい。
 
 [[admin_vms]]
 == Administering Virtual Machines
@@ -124,56 +347,57 @@ image::module-00/14_Network_Tab.png[link=self, window=blank, width=100%]
 When a VM is created, an interface on the *PodNetworking* network of type *masquerade* is created by default. This connects the VM to the SDN and provides access from the VM to outside the OpenShift cluster. Other VMs, and Pods, in the cluster can access the virtual machine using this interface. Furthermore, a VM connected to the SDN can be accessed externally using a Route, or Service with type load balancer, or even have a Network Attachment Definition configured to allow direct access to external networks.
 
 [[vm_state]]
-== Controlling Virtual Machine State
+== 仮想マシンの状態の制御
 
-As a user with permission to access Virtualization, you can stop, start, restart, pause, and unpause virtual machines from the web console.
+VM へのアクセス権限を持つユーザーは、Web コンソールから VM を停止、起動、再起動、一時停止、および一時停止解除といった制御ができます。
 
-. Click the *Overview* tab to return to the summary screen.
-
-. In the top right corner you will notice shortcut buttons for running state: stop, restart, and pause. As well as a dropdown menu title *Actions*.
+. 左メニューで *Virtualization* -> *VirtualMachines* に戻り、リストから `fedora01` VM を選択します。
+. 画面右上には、Stop、Restart、Pause のショートカットボタンがあります。また、*Actions* メニューもあります。
 +
 image::module-00/15_VM_State_Actions.png[link=self, window=blank, width=100%]
 +
-.. *Stop*: Starts a graceful shutdown of the Virtual Machine.
-.. *Restart*: This will send a signal to the operating system to reboot the Virtual Machine. Guest integrations are needed for this to work properly.
-.. *Pause*: The process is frozen without further access to CPU resources and I/O, but the memory used by the VM at the hypervisor level will stay allocated.
+.. *Stop*: VM をグレイスフルにシャットダウンします。
+.. *Restart*: VM を再起動するシグナルを OS に送信します。
+.. *Pause*: ハイパーバイザのレベルで、VM が使っているメモリは保ったまま VM プロセスを一時停止します。
 
-. You can also access these options and more by clicking on the *Actions* menu and seeing the options available in the drop down list.
+. *Actions* メニューをクリックし、利用可能なオプションを表示することもできます。
 +
 image::module-00/16_VM_Actions_Menu.png[link=self, window=blank, width=100%]
 +
-. Press the *Stop* button and wait until the Virtual Machine is in state *Stopped*.
+. *Stop* をクリックして、VM が `Stopped` になるまで待ちます。
 +
 image::module-00/17_VM_Stopped.png[link=self, window=blank, width=100%]
-. Clicking on *Actions*, the option *Start* appears, and the options *Restart* and *Pause* are greyed out. 
+. *Actions* メニューを見ると、*Start* が表示され、*Restart* と *Pause* はグレーアウトされていることがわかります。
 +
 image::module-00/18_VM_Actions_List_Stopped.png[link=self, window=blank, width=100%]
 
-. Click *Start*, and wait for the *Running* status.
+. *Start* をクリックし、`Running` になるまで待ちます。
 
-. Using the *Actions* menu, or the shortcut button, press the *Pause* option. The Virtual Machine state will change to *Paused*.
+. *Actions* メニューで *Pause* をクリックします。VM のステータスが `Paused` に変わります。
 +
 image::module-00/19_VM_Actions_Paused.png[link=self, window=blank, width=100%]
 
-. Unpause the Virtual Machine using the *Actions* menu and the option *Unpause*, or by using the shortcut button.
+. *Actions* メニューで *Unpause* をクリックし、VM の一時停止を解除します。
 
 [[live_migrate]]
-== Live Migrate a Virtual Machine
+== 仮想マシンの Live Migration
 
-In this section, we will migrate the VM from one OpenShift node to another without shutting down the VM. Live migration requires *ReadWriteMany* (RWX) storage so that the VM disks can be mounted on both the source and destination nodes at the same time. OpenShift Virtualization, unlike other virtualization solutions, does not use monolithic datastores mounted to each cluster member that hold many VM disks for many different VMs. Instead, each VM disk is stored in its own volume that is only mounted when and where it's needed. 
+このセクションでは、VM をシャットダウンせずに別のノードへ移行します。 +
+Live Migration には *ReadWriteMany (RWX)* ストレージが必要で、VM のディスクを移行元と移行先の両方のノードで同時にマウントできるようにします。 +
+OpenShift Virtualization は、他の仮想化ソリューションとは異なり、全てのクラスタを構成するノードが常時アクセスできるようなモノリシックなデータストアは使いません。各 VM ディスクは個々のボリュームに格納され、必要なときに必要なノードにのみマウントされるようになっています。
 
-. Navigate to the *Overview* tab to see where the worker node is running:
+. `fedora01` VM の *Overview* タブに移動し、VM が稼働している Worker ノードを確認します。
 +
 image::module-00/20_VM_Info_Node.png[link=self, window=blank, width=100%]
 
-. Using the *Actions* menu, select the option to *Migrate*.
+. *Actions* メニューから、*Migrate* をクリックします。
 +
 image::module-00/21_VM_Dialog_Migrate.png[link=self, window=blank, width=100%]
 
-. After a few seconds, the VM will change the status to *Migrating*. A few seconds later, it will return to the *Running* status, but on a new node. The VM has been successfully live migrated!
+. 数秒後、VM のステータスが `Migrating` に変わります。数秒後にまた `Running` に変わりますが、別のノードで稼働しています。すなわち、VM は正常に Live Mgration されたことがわかります。
 +
 image::module-00/22_Migrated.png[link=self, window=blank, width=100%]
 
-== Summary
+== まとめ
 
-In this lab, we reviewed virtual machine state management tasks, and executed a live migration of a VM. Both of these are common and necessary tasks as platform administrators and a great way to familiarize yourself with some basic features available when working with VMs in OpenShift Virtualization.
+このモジュールでは、VM を作成して状態管理作業を確認し、Live Migration を実行しました。これらはプラットフォーム管理者として一般的かつ必要なタスクであるため、OpenShift Virtualization で VM を扱う際の基本的な操作として慣れておくことが好ましいでしょう。
