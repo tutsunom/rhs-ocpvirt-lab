@@ -6,18 +6,18 @@
 
 * xref:module-00.adoc[OpenShift Virtualization の基礎]
 ** xref:module-00.adoc#create_project[新しいプロジェクトの作成]
-** xref:module-00.adoc#create_vm[Create a Linux Virtual Machine]
+** xref:module-00.adoc#create_vm[新しい仮想マシンの作成]
 ** xref:module-00.adoc#admin_vms[Administering Virtual Machines]
-** xref:module-00.adoc#vm_state[Controlling Virtual Machine State]
-** xref:module-00.adoc#live_migrate[Live Migrate a Virtual Machine]
+** xref:module-00.adoc#vm_state[仮想マシンの状態の制御]
+** xref:module-00.adoc#live_migrate[仮想マシンの Live Migration]
 
 * xref:module-05.adoc[仮想マシンの移行]
-** xref:module-05.adoc#prerequisites[Prerequisites for Migrations]
-** xref:module-05.adoc#migrating_vms[Migrating Virtual Machines from VMware]
+** xref:module-05.adoc#prerequisites[移行の前提条件]
+** xref:module-05.adoc#migrating_vms[VMware からの仮想マシンの移行]
 
 * ◆仮想インフラ管理者向けモジュール
 
-* xref:module-01.adoc[2. Bare Metal Management ]
+* xref:module-01.adoc[ベアメタル OpenShift]
 ** xref:module-01.adoc#review_nodes[Review Nodes and Machines]
 ** xref:module-01.adoc#review_hosts[Review Bare Metal Hosts]
 ** xref:module-01.adoc#scaling_cluster[Scaling the Cluster with a New Bare Metal Host]
