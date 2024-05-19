@@ -1,45 +1,41 @@
 = OpenShift Virtualization の基礎
 
-
 == はじめに
-
-The beginning section of this lab will introduce you to the basics of creating and managing VMs in OpenShift Virtualization. You will see how the web console guides you through the whole process of creating a virtual machine from a pre-defined template. We will then review the properties of that VM, do some basic customizations, and perform actions like live migration, that are often expected of virtual machine administrators. 
-
 このラボでは、OpenShift Virtualization における VM の作成と管理の基本について紹介します。Web コンソールがプロセス全体を通してどのようにあなたをガイドするか、そして VM のプロパティを確認し、基本的なカスタマイズを行うことがいかに簡単であるかを確認します。
 
 このラボでは、VM をプロビジョニングするためのいくつかの方法を紹介しますが、その他にも様々な方法があり、ここで紹介する方法だけに限られるわけではありません。すべての VM プロビジョニング方法は、サポートされているすべてのゲスト OS で動作します。
 
 .ゴール
 
-* Create a new virtual machine
-* Review and modify resources for virtual machines
-* Understand how VM power states are managed using the OpenShift console
-* Live migrate a VM between two hosts
+* 新規の仮想マシンの作成
+* 仮想マシンのリソースの確認と変更
+* OpenShift コンソールを使った仮想マシンの電源状態の管理
+* 2 つのノード間での仮想マシンのライブマイグレーション
 
-As a reminder, here are your credentials for the OpenShift Console:
+あなたの OpenShift コンソールは以下のリンク先からアクセスできます。
 
-Your OpenShift cluster console is available {openshift_web_console}[here^].
+{openshift_web_console}
 
-Administrator login is available with:
+管理者ユーザのログイン情報は次の通りです。
 
 * *User:* {openshift_admin_user} 
 * *Password:* {openshift_admin_password}
 
 [[create_project]]
-== Create a New Project
+== 新しいプロジェクトの作成
 
-Like other objects in OpenShift, Projects (which are an abstraction for Kubnernetes namespaces), are the boundaries for permissions and other aspects of using and manaing the resources. Creating a Project is an important first step for any deployment.
+OpenShift の他のオブジェクトと同様に、Kubnernetes の Namespace を抽象化した *Project* は、パーミッションやリソースを使用・管理するための境界となります。プロジェクトの作成はあらゆるワークロードをデプロイする際の重要な第一歩です。
 
-. Browse to *Virtualization* -> *VirtualMachines* using the left navigation menu:
+. 左メニューの *Virtualization* -> *VirtualMachines* に移動します。
 +
 image::module-00/01_Left_Menu.png[link=self, window=blank, width=100%]
 +
 [NOTE]
 ====
-The *Virtualization* tab is available only when Red Hat OpenShift Virtualization is installed and properly configured. In this lab environment the installation and configuration has already been performed for us.
+*Virtualization* メニューは、OpenShift Virtualization がインストールされ、適切に設定されている場合に使用できます。
 ====
 
-. Examine the *VirtualMachines* dashboard that appears. There are currently several VMs listed, but they are not turned on:
+. 表示される *VirtualMachines* ダッシュボードを確認します。いくつかの VM がリストされていますが、いずれもパワーオンになっていません。
 +
 image::module-00/02_VM_List.png[link=self, window=blank, width=100%]
 
