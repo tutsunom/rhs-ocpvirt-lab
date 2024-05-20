@@ -1,5 +1,4 @@
 :scrollbar:
-:toc2:
 :numbered:
 
 = 仮想マシンのバックアップ / リストア

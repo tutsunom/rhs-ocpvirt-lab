@@ -1,5 +1,4 @@
 :scrollbar:
-:toc2:
 :numbered:
 
 = OpenShift Virtualization の基礎
