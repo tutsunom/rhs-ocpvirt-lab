@@ -80,7 +80,7 @@ image::module-03/04_NAD_Created.png[link=self, window=blank, width=100%]
 +
 image::module-03/05_VM_Network_Tab.png[link=self, window=blank, width=100%]
 +
-NOTE: VM は現在 1 つの *Pod networking* に接続された `default` NIC を使用しています。この既存のネットワーク接続を変更するか、VM に新しい NIC を追加するかを選択できます。どちらを選択するにしても、現時点では変更を反映させるために VM の再起動、または Live Migration が求められます。
+NOTE: VM は現在 1 つの *Pod networking* に接続された `default` NIC を使用しています。この既存のネットワーク接続を変更するか、VM に新しい NIC を追加するかを選択できます。どちらを選択するにしても、現時点では変更を反映させるために VM の再起動が求められます。
 +
 . `default` ネットワークインターフェースで右端の三点メニューから *Edit* を選択します。
 +
@@ -131,6 +131,7 @@ apiVersion: k8s.cni.cncf.io/v1beta1
 kind: MultiNetworkPolicy
 metadata:
   name: deny-by-default
+  namespace: vmexamples
   annotations:
     k8s.v1.cni.cncf.io/policy-for: vmexamples/vlan0
 spec:
@@ -164,26 +165,31 @@ image::module-03/12_Deny_All_Applied.png[link=self, window=blank, width=100%]
 +
 image::module-03/13_Bastion_Ping_Fail.png[link=self, window=blank, width=100%]
 +
-. OpenShift Web コンソールに戻り、左メニューから *Virtualization -> VirtualMachines* を選択し、`fedora02` VM を選びます。
+. それでは `fedora02` からのみ `fedora01` へ通信できるように変更します。OpenShift Web コンソールに戻り、左メニューから *Virtualization -> VirtualMachines* を選択し、`fedora02` VM を選びます。
 +
 image::module-03/14_Fedora02_Overview.png[link=self, window=blank, width=100%]
 +
-. Click on the button to open it's web console, and login with the provided credentials.
+. *Console* タブを使って `fedora02` にログインします。
 +
 image::module-03/15_Fedora02_Console.png[link=self, window=blank, width=100%]
 +
-. Attempt to ping the ip address for the *fedora01* virtual machine, notice that it is also blocked, even though we are on the same subnet, in the same namespace. *Leave the ping running.*
+. ログインしたら `fedora01` の IP アドレスに `ping` を実行します。同じサブネットを使い、同じ Namespace にあるにもかかわらず、`ping` はブロックされます。*ping を実行したままにしておきます。*
 +
 image::module-03/16_Fedora02_Ping_Fail.png[link=self, window=blank, width=100%]
 +
-. Return to the bastion host console, and create a new file called allow-host.yaml, and paste in the following content:
+. Bastion ホストのコンソールに戻ります。以下の内容をコピー&ペーストして、新しくマルチネットワークポリシーの定義ファイルを作成します。`allow-host.yaml` ファイルが作られます。
 +
-[source,yaml,role=execute]
+IMPORTANT: `<IP_ADDR_FROM_FEDORA02>` の部分を、あなたの `fedora02` VM の IP アドレスに置き換えることを忘れないようにしてください。
++
+
+[source,shell,role=execute]
 ----
+cat << EOL > allow-host.yaml
 apiVersion: k8s.cni.cncf.io/v1beta1
 kind: MultiNetworkPolicy
 metadata:
   name:  ingress-ipblock
+  namespace: vmexamples
   annotations:
     k8s.v1.cni.cncf.io/policy-for: vmexamples/vlan0
 spec:
@@ -194,41 +200,38 @@ spec:
   - from:
     - ipBlock:
         cidr: <IP_ADDR_FROM_FEDORA02>/32
+EOL
+
 ----
-+
-IMPORTANT: Make sure that you substitute the correct IP from the Fedora02 VM.
 +
 image::module-03/17_Allow_Host_Syntax.png[link=self, window=blank, width=100%]
 +
-. Apply the policy using the following syntax:
+. 次のコマンドを実行して先ほど作成した `allow-host.yaml` を適用し、マルチネットワークポリシーを定義します。
 +
 [source,sh,role=execute]
 ----
-oc apply -f allow-host.yaml -n vmexamples
+oc apply -f deny-all.yaml -n vmexamples
 ----
-
 +
 image::module-03/18_Allow_Host_Applied.png[link=self, window=blank, width=100%]
 +
-. Attempt to ping from the bastion host. This attempt should still fail as we have not explictly allowed it.
+. Bastion ホストから `fedora01` に `ping` を実行します。Bastion ホストは通信が許可されていないため、`ping` は失敗します。
 +
 image::module-03/19_Bastion_Still_Blocked.png[link=self, window=blank, width=100%]
 +
-. Return to your *fedora02* VM console, you should find that the ping has now resumed successfully.
+. OpenShift Web コンソールで `fedora02` VM の *Console* に戻ります。先ほど失敗していた `ping` が成功していることがわかります。このようにマルチネットワークポリシーによって、一切の通信を遮断したり、特定の VM 間の通信のみを許容したりすることができます。
 +
 image::module-03/20_Fedora02_Ping_Allowed.png[link=self, window=blank, width=100%]
 +
-. Let's clean up the policies for the next section.
+. 次のモジュールのために設定したネットワークポリシーを削除します。
 +
-IMPORTANT: For the next lab, it's important that we clear out the two network policies we created.
-+
-Please run the following two commands:
+次のコマンドを実行してください。
 +
 [source,sh,role=execute]
 ----
 oc delete -f allow-host.yaml -f deny-all.yaml -n vmexamples
 ----
 
-== Summary
+== まとめ
 
-In this section we learned a little bit more about how networking works in OpenShift Virtualization. We created a network attachment definition so that our VMs have network access from outside of the cluster. We also implemented a MultiNetwork Policy to demonstrate how we can secure connections to our VMs by only allowing specified hosts access. 
+このモジュールでは、OpenShift Virtualization でネットワークがどのように機能するかについて学びました。VM がクラスタ外からネットワークにアクセスできるように、*Network Attachment Definition* を作成しました。また、マルチネットワークポリシーを実装し、指定した IP アドレスのみにアクセスを許可することで、VM への接続をセキュアにする方法を紹介しました。

@@ -50,8 +50,8 @@ OpenShift Virtualization のハードウェアに関する特定の要件とガ�
 [NOTE]
 例えば Intel と AMD など、異なる CPU が Worker ノードで使用されている場合、CPU が持つ機能が異なるため、Live Migration に失敗する可能性があります。
 
-[[manage_hardware]]
-== OpenShift のハードウェア管理
+[[manage_machine]]
+== OpenShift のマシン管理
 
 インストーラ・プロビジョニング・インフラストラクチャ (IPI) 方式を使用してデプロイする場合は、OpenShift は https://metal3.io/[Metal3] を使って out-of-band な管理コントローラを使ってハードウェアを管理します。この結果、ハードウェアはクラスタ内で 3 つの異なるリソースで表現されます。
 
