@@ -2,7 +2,7 @@
 * xref:index.adoc[Introduction]
 * xref:env.adoc[ラボ環境]
 
-* ◆ラボ 1
+* ◆標準モジュール
 
 * xref:module-00.adoc[OpenShift Virtualization の基礎]
 ** xref:module-00.adoc#create_project[新しいプロジェクトの作成]
@@ -15,7 +15,7 @@
 ** xref:module-05.adoc#prerequisites[移行の前提条件]
 ** xref:module-05.adoc#migrating_vms[VMware からの仮想マシンの移行]
 
-* ◆ラボ 2
+* ◆オプションモジュール
 
 * xref:module-01.adoc[ベアメタル OpenShift]
 ** xref:module-01.adoc#manage_machine[OpenShift のマシン管理]
@@ -39,5 +39,3 @@
 //* xref:module-04.adoc[5. Template Management]
 //** xref:module-04.adoc#clone_customize_template[Clone and Customize a Template]
 //** xref:module-04.adoc#create_win[Create a Windows VM Template]
-
-**仮想マシン管理者／ユーザ向けモジュール**
