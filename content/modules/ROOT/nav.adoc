@@ -2,7 +2,7 @@
 * xref:index.adoc[Introduction]
 * xref:env.adoc[ラボ環境]
 
-* ◆共通モジュール
+* ◆ラボ 1
 
 * xref:module-00.adoc[OpenShift Virtualization の基礎]
 ** xref:module-00.adoc#create_project[新しいプロジェクトの作成]
@@ -15,7 +15,7 @@
 ** xref:module-05.adoc#prerequisites[移行の前提条件]
 ** xref:module-05.adoc#migrating_vms[VMware からの仮想マシンの移行]
 
-* ◆仮想インフラ管理者向けモジュール
+* ◆ラボ 2
 
 * xref:module-01.adoc[ベアメタル OpenShift]
 ** xref:module-01.adoc#manage_machine[OpenShift のマシン管理]
