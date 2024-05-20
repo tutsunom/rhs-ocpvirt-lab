@@ -1,0 +1,132 @@
+:scrollbar:
+:toc2:
+:numbered:
+
+= 仮想マシンのバックアップ / リストア
+
+== はじめに
+
+OpenShift Virtualization の VM のバックアップとリストアには様々なオプションがあります。
+
+* https://docs.openshift.com/container-platform/4.15/backup_and_restore/application_backup_and_restore/oadp-features-plugins.html[*OADP (OpenShift APIs for Data Protection)*]: Red Hat が提供する、VM を含む OpenShift オブジェクトをバックアップおよびリストアするための、ストレージに依存しない方法。
+* https://docs.kasten.io/latest/usage/openshift_virtualization.html[*Kasten K10 by Veeam*]
+* https://docs.trilio.io/kubernetes/appendix/backup-and-restore-virtual-machine-running-on-openshift-virtualization[*Trilio for Kubernetes*]
+* https://storware.eu/solutions/containers-backup-and-recovery/red-hat-openshift-backup-restore/[*Storware Backup and Recovery*]
+
+さらに、多くのストレージ・パートナーは、自社のネイティブ・テクノロジーを使用して VM のディスクを保護する機能を提供しています。OpenShift Virtualization との互換性を確認するために、ストレージとバックアップソフトウェアのベンダに確認してください。
+
+このモジュールでは、OADP を使って VM のバックアップとリストアを実行します。
+
+[[review_oadp]]
+== OADP Operator のレビュー
+
+. 左メニューから *Operators* -> *Installed Operators* に移動し、`All projects` が選択されていることを確認し、`OADP Operator` を選択します。
++
+image::module-06/00_Left_Menu.png[]
+
+. 利用可能な *Provided APIs* を確認します。このモジュールでは、`Backup` と `Restore` を使用します。
++
+image::module-06/01_Overview.png[]
+
+. *DataProtectionApplication* タブに移動します。このオブジェクトは、デプロイされた OADP インスタンスの構成を表します。
++
+image::module-06/02_DPA.png[]
+
+. `oadp-dpa` を選択し、_YAML_ マニフェストを見てみましょう。
++
+image::module-06/03_OADP_YAML.png[]
++
+*OADP* には `kubevirt` プラグインが追加されており、OpenShift Virtualization の VM を扱うことができることがわかります。また、バックアップターゲットとして、オブジェクトストレージバケットが指定されています。このバケットは *OpenShift Data Foundation* が提供する AWS S3 互換のバケットです。
++
+本番環境では外部ストレージシステムにバックアップしたいところですが、このラボでは便宜上、OpenShift クラスタ内部のオブジェクトストレージを使用します。
+
+[[backup_vm]]
+== VM のバックアップの実行
+
+`fedora02` VM のバックアップを実行します。バックアップする対象の選択は、`app` と `vm.kubevirt.io/name` の 2 つのラベルで指定します。この指定で、VM の定義、ディスク、および ConfigMap や Secret といった VM で使用されているオブジェクトが含まれます。
+
+. 1 つ前の画面に戻って *Backup* タブに移動し、*Create Backup* を押します。
++
+image::module-06/04_Backup_Tab.png[]
+
+. _YAML view_ に切り替え、以下の内容に置き換えて *Create* をクリックします。
++
+[source,yaml]
+----
+apiVersion: velero.io/v1
+kind: Backup
+metadata:
+  name: backup-fedora02
+  labels:
+    velero.io/storage-location: default
+  namespace: openshift-adp
+spec:
+  hooks: {}
+  orLabelSelectors:
+  - matchLabels:
+      app: fedora02
+  - matchLabels:
+      vm.kubevirt.io/name: fedora02
+  includedNamespaces:
+  - vmexamples
+  storageLocation: oadp-dpa-1
+  ttl: 720h0m0s
+----
++
+この YAML の内容は、`vmexample` プロジェクトの中で、ラベル `app: fedora02` を持つオブジェクトが、`DataProtectionApplication` の設定で指定されたバックアップターゲットにバックアップされることを示しています。
++
+[IMPORTANT]
+`fedora02` VM が存在しない場合は、上記の YAML でラベルセレクタを変更して存在する VM のラベルに一致させてください。
+
+. `Status` が `Completed` に変わるまで待ちます。これは VM が正常にバックアップされたことを示します。
++
+image::module-06/05_Backup_Completed.png[]
+
+[[restore_vm]]
+== VM のリストアの実行
+
+取得した `fedora02` VM のバックアップから VM をリストアします。
+
+. リストアの前に `fedora02` VM を削除します。左メニューで *Virtualization* -> *VirtualMachines* に移動し、`fedora02` VM の 3 つのドットアイコンをクリックして *Delete* を選択します。
+
+. *Delete disks* がチェックされていることを確認し、*Delete* をクリックします。`fedora02` VM が削除されるまで待ちます。
+
+. 左メニューで *Operators* -> *Installed Operators* に移動し、*OADP Operator* を選択します。 
+
+. *Restore* タブに移動し、*Create Restore* を押します。
++
+image::module-06/06_Restore_Tab.png[]
+
+. _YAML view_ に切り替え、以下の内容に置き換えて *Create* をクリックします。
++
+[source,yaml]
+----
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: restore-fedora02
+  namespace: openshift-adp
+spec:
+  backupName: backup-fedora02
+  includedResources: [] 
+  excludedResources:
+  - nodes
+  - events
+  - events.events.k8s.io
+  - backups.velero.io
+  - restores.velero.io
+  restorePVs: true
+----
+
+. `Status` が `Completed` になるまで待ちます。
++
+image::module-06/07_Restore_Completed.png[]
+
+. *Virtualization* -> *Virtual Machines* に戻り、`fedora02` VM がリストアされていることを確認します。
++
+image::module-06/08_VM_Restored.png[]
+
+
+== まとめ
+
+VM の保護は仮想化プラットフォームにとって非常に重要な要素です。OpenShift Virtualization は、OADP を使ったり、ストレージやバックアップパートナーが提供する機能と統合できるようにするなど、OpenShift ネイティブな保護を可能にします。VM の保護の方法について質問がある場合は、遠慮なく workshop のプロクターに質問してください。
