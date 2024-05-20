@@ -35,121 +35,120 @@ image::module-02/00_disk_concepts.png[link=self, window=blank, width=100%]
 image::module-02/02_Fedora01_PVC_Details.png[link=self, window=blank, width=100%]
 
 [[managing_snapshots]]
-== Managing Snapshots
+== スナップショットの管理
 
-OpenShift Virtualization relies on the CSI storage provider's snapshot capability to create disk snapshots for the virtual machine, which can be taken "online" while the VM is running or "offline" while the VM is powered off. If the KVM integrations are installed on the VM, you will also have the option of quiescing the guest operating system (quiescing ensures that the snapshot of the disk represents a consistent state of the guest file systems, e.g., buffers are flushed and the journal is consistent).
+OpenShift Virtualization は、VM のスナップショットを作成するために、CSI ストレージプロバイダのスナップショット機能を使います。VM の実行中に "オンライン" で取得することも、VM を停止して "オフライン" で取得することもできます。KVM 連携 (QEMU ゲストエージェント) が VM にインストールされている場合は、ゲスト OS を "休止" させるオプションもあります。休止は、ディスクのスナップショットがゲスト・ファイル・システムの一貫した状態を表すことを保証します。例えば、バッファキャッシュはディスクにフラッシュされ、ジャーナルは一貫性を保持します。
 
-Since disk snapshots are dependent on the storage implementation, abstracted by the CSI, performance impact and capacity used will depend on the storage provider. Work with your storage vendor to determine how the system will manage PVC snapshots and the impact they may or may not have.
+ディスクスナップショットは CSI によって抽象化されたストレージの実装に依存し、パフォーマンスへの影響と使用容量はストレージプロバイダに依ります。ストレージシステムが PVC のスナップショットをどのように管理するか、またその影響については、ストレージベンダと相談してください。
 
 [IMPORTANT]
 ====
-Snapshots, by themselves, are not a backup or disaster recovery capability. The data needs to be protected in other ways, such as one or more copies stored in a different location, to recover from the storage system failing.
+スナップショットは、それ自体ではバックアップや災害対策の機能ではありません。ストレージシステムの障害時にデータを復旧するためには、別の場所に保存された 1 つ以上のコピーなど、他の方法でデータを保護する必要があります。
 
-In addition to the OpenShift API for Data Protection (OADP), partners such as Kasten by Veeam, Trilio, and Storware support the ability to backup and restore virtual machines to the same cluster or other clusters as needed.
+OpenShift API for Data Protection (OADP) に加えて、Kasten by Veeam、Trilio、Storware などの ISV パートナーは、必要に応じて VM をバックアップして同じクラスタまたは他のクラスタにリストアする機能をサポートしています。
 ====
 
-With the VM snapshots feature, cluster administrators and application developers can:
+VM スナップショットにより、クラスタ管理者やアプリケーション開発者は以下のことが可能となります。
 
-* Create a new snapshot
-* List all snapshots attached to a specific VM
-* Revert a VM to a snapshot
-* Delete an existing VM snapshot
+* 新しいスナップショットの作成
+* 特定の VM にアタッチされているスナップショットのリスト
+* スナップショットからのリストア
+* 既存のスナップショットの削除
 
-=== Creating and Using Snapshots
+=== スナップショットの作成と使用
 
-. Navigate back to *Virtualization* -> *VirtualMachines* and select the virtual machine, *fedora01* in the project *vmexamples*.
+. 左メニューで *Virtualization* -> *VirtualMachines* に移動し、`vmexamples` プロジェクト内の `fedora0` VM を選択します。
 +
 image::module-02/03_VM_Overview.png[link=self, window=blank, width=100%]
 +
-. Notice there are currently no snapshots of this VM listed on the overview page. 
+. 現時点ではスナップショットは存在しないため、表示されていません。
 +
 image::module-02/04_Snapshots_Overview.png[link=self, window=blank, width=100%]
 +
-. Navigate to the *Snapshots* tab.
+. *Snapshots* タブに移動します。
 +
 image::module-02/05_Snapshot_Menu.png[link=self, window=blank, width=100%]
 
-. Press *Take snapshot* and a dialog will open
+. *Take snapshot* を押すと、ダイアログが開きます。
 +
 [NOTE]
-There is a warning about the *cloudinitdisk* not being included in the snapshot. This is expected and happens because it is an ephemeral disk.
+`cloudinitdisk` がスナップショットに含まれないという警告がありますが、`cloudinitdisk` がエフェメラルディスクであるために起こるもので、予想されたものです。特に対応する必要はありません。
 +
 image::module-02/06_VM_Snapshot_Dialog.png[link=self, window=blank, width=100%]
 
-. Press *Save* and wait till the _Snapshot_ has been created and the *status* shows as *Succeeded*.
+. *Save* をクリックするとスナップショットが作成されます。*status* が `Succeeded` と表示されるまで待ちます。
 +
 image::module-02/07_VM_Snapshot_Taken.png[link=self, window=blank, width=100%]
 
-. Press the three-dot menu, and see that the *Restore* option is greyed out because the VM is currently running.
+. 右端の 3 つのドットアイコンをクリックし、*Restore* オプションがグレーアウトしていることを確認します。これは VM が起動しているためです。
 +
 image::module-02/08_VM_Restore_Disabled.png[link=self, window=blank, width=100%]
 
-. Next, switch to the *Console* tab. We are going to login and perform a modification that prevents the VM from being able to boot. 
+. 実行中の VM を意図的に故障させます。*Console* タブに切り替えて VM にログインし、変更を加えます。この変更により VM はブートできなくなります。
 +
 image::module-02/09_Console_Login.png[link=self, window=blank, width=100%]
 +
-. Click on the *Guest login credentials* dropdown to gather the username and password to log into your console.
+. *Guest login credentials* ドロップダウンをクリックして VM コンソールにログインするためのユーザ名とパスワードを調べます。
 +
-NOTE: There is a *Copy to clipboard* button and a *Paste* button available here, which makes the login process much easier.
+NOTE: *Copy to clipboard* のアイコンと *Paste* のアイコンを使うことで、ログインプロセスは簡単になります。
 +
-. Once you are logged in, execute the following command: 
+. VM にログインできたら、次のコマンドを実行します。
 +
 [source,sh,role=execute]
 ----
 sudo rm -rf /boot/grub2; sudo shutdown -r now
 ----
 +
-. The virtual machine will no longer be able to boot. 
+. 実行したコマンドによって VM は再起動しますが、起動できなくなります。
 +
 image::module-02/10_Bootloader_Broken.png[link=self, window=blank, width=100%]
 +
-IMPORTANT: In the previous step, the operating system was shutdown from within the guest. However, OpenShift Virtualization will restart it automatically by default. This behavior can be changed globally or on a per-VM basis.
+. VM を停止します。右上の *Actions* メニューの *Stop*、またはショートカットボタンを使って VM を停止してもよいですが、*Stop* はグレイスフルなシャットダウンを試みるため、現在不安定な状態にある `fedora01` VM は停止するまで時間がかかることがあります。 +
+*Actions* メニューを開くと *Force stop* というオプションがあるため、これを使って強制的に VM を停止させます。
 +
-. Using the *Actions* dropdown menu or the shortcut button in the top right corner, *Stop* the VM. This process can take a long time since it attempts a graceful shutdown and the machine is in an unstable state. If you click on the *Actions* dropdown menu again you will have the option to *Force stop*. Please make use of this option in order to continue with the lab. 
-+
-. You can click on the *Overview* tab to confirm that the VM has stopped. You can also see the snapshot we recently took listed in the *Snapshots* tile. (You may need to Force Stop the VM via the dropdown. This is fine as we are about to restore the snapshot.)
+. `fedora01` VM の *Overview* タブに移動し、VM が停止していることを確認します。また、 *Snapshots* タイルに先ほど取得したスナップショットが表示されていることもわかります。
 +
 image::module-02/11_VM_Stopped_Snapshot.png[link=self, window=blank, width=100%] 
 +
-. Navigate back to the *Snapshots* tab, click the three-dot menu, and with the VM stopped, you will find *Restore* is no longer greyed out. Click it.
+. *Snapshots* タブに戻り、三点アイコンメニューを開くと、*Restore* がグレーアウトされていないことが確認できます。そのまま *Restore* を選択します。
 +
 image::module-02/12_VM_Restore.png[link=self, window=blank, width=100%]
 +
-. In the dialog shown, press *Restore*.
+. 表示されたダイアログで、*Restore* を押します。
 +
 image::module-02/13_VM_Restore_Dialog.png[link=self, window=blank, width=100%]
 
-. Wait until the VM is restored, the process should be fairly quick.
+. VM がリストアされるまで待ちます。これはかなり早く終わります。
 +
 image::module-02/14_VM_Restored.png[link=self, window=blank, width=100%]
 +
-. Return to *Overview* tab, and start the VM.
+. *Overview* タブに戻り、VM を起動します。
 +
 image::module-02/15_VM_Start.png[link=self, window=blank, width=100%]
 +
-. Click on the console tab to confirm that the VM has now restarted successfully. 
+. *Console* タブをクリックすると、VM が問題なく起動できています。故障する前の VM にリストアできたことがわかります。
 +
 image::module-02/16_VM_Running.png[link=self, window=blank, width=100%]
 
 [[clone_vm]]
-== Clone a Virtual Machine
+== 仮想マシンのクローン
 
-Cloning creates a new VM that uses it's own disk image for storage, but most of the clone's configuration and stored data is identical to the source VM.
+クローンでは、既存 VM のディスクイメージを使用する新しい VM を作成しますが、クローンの構成と保存しているデータのほとんどは、ソース VM と同じです。
 
-. Return to the *Overview* screen, and click the *Actions* dropdown menu to see the option to clone the VM.
+. `fedora01` VM の *Overview* タブで、*Actions* メニューから *Clone* を押すと、ダイアログが開きます。
 +
 image::module-02/17_Overview_Actions_Clone.png[link=self, window=blank, width=100%]
-. Press *Clone* from the *Actions* menu, and a dialog will open. Name the cloned VM *fedora02*, and select the check box to *Start VirtualMachine on clone*.
+. クローン VM の名前を `fedora02` と指定し、*Start VirtualMachine on clone* のチェックボックスをチェックして、*Clone* をクリックします。
 +
 image::module-02/18_VM_Clone_Dialog.png[link=self, window=blank, width=100%]
 +
-. A new VM is created, the disks are cloned and automatically the portal will redirect you to the new VM, and you can see the *Created* time as very recently.
+. 新しい VM が作成され、ディスクがクローンされます。自動的に新しい VM の画面に移動します。
 +
 image::module-02/19_VM_Cloned.png[link=self, window=blank, width=100%]
 +
 [IMPORTANT]
-The cloned VM will have the same identity as the source VM, which may cause conflicts with applications and other clients interacting with the VM. Use caution when cloning a VM connected to an external network or in the same project.
+クローンされた VM は、ソース VM と同じ ID を持つことになり、アプリケーションや VM と相互作用する他のクライアントとの競合を引き起こす可能性があります。外部ネットワークに接続された VM や同じプロジェクト内で VM をクローンする場合は注意してください。
 
-== Summary
+== まとめ
 
-In this section of our lab we explored the storage options that are available to us when managing virtual machines. We also performed several VM management functions that are dependant on the storage provisioned for the virtual machine, including taking snapshots of VMs and cloning VMs to be used in another project or to help streamline development.
+このモジュールでは、仮想マシンを管理する際に利用可能なストレージ・オプションを学びました。また、仮想マシンのスナップショットの取得や、別のプロジェクトで使用したり開発を効率化したりするための仮想マシンのクローン作成など、仮想マシンにプロビジョニングされたストレージに依存するいくつかの仮想マシン管理機能を実行しました。
