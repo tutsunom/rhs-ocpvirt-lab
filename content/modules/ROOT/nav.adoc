@@ -18,22 +18,26 @@
 * ◆仮想インフラ管理者向けモジュール
 
 * xref:module-01.adoc[ベアメタル OpenShift]
-** xref:module-01.adoc#review_nodes[Review Nodes and Machines]
-** xref:module-01.adoc#review_hosts[Review Bare Metal Hosts]
-** xref:module-01.adoc#scaling_cluster[Scaling the Cluster with a New Bare Metal Host]
+** xref:module-01.adoc#manage_machine[OpenShift のマシン管理]
+** xref:module-01.adoc#scaling_cluster[新しいベアメタルホストの追加]
 
-* xref:module-02.adoc[3. Storage Management]
-** xref:module-02.adoc#examine_pvc[Examine the PVC for a VM]
-** xref:module-02.adoc#managing_snapshots[Managing Snapshots]
-** xref:module-02.adoc#clone_vm[Clone a Virtual Machine]
+* xref:module-02.adoc[ストレージ管理]
+** xref:module-02.adoc#examine_pvc[仮想マシンの PVC を確認]
+** xref:module-02.adoc#managing_snapshots[スナップショットの管理]
+** xref:module-02.adoc#clone_vm[仮想マシンのクローン]
 
-* xref:module-03.adoc[4. Network Management]
-** xref:module-03.adoc#create_netattach[Create a Network Attachment Definition]
-** xref:module-03.adoc#connect_external_net[Connect a Virtual Machine to an External Network]
-** xref:module-03.adoc#multinetwork_policy[Using a Multinetwork Policy]
+* xref:module-03.adoc[ネットワーク管理]
+** xref:module-03.adoc#create_netattach[Network Attachment Definition の作成]
+** xref:module-03.adoc#connect_external_net[VM を外部ネットワークに接続]
+** xref:module-03.adoc#multinetwork_policy[マルチネットワークポリシーの使用]
 
-* xref:module-04.adoc[5. Template Management]
-** xref:module-04.adoc#clone_customize_template[Clone and Customize a Template]
-** xref:module-04.adoc#create_win[Create a Windows VM Template]
+* xref:module-06.adoc[バックアップ / リストア]
+** xref:module-06.adoc#review_oadp[OADP Operator のレビュー]
+** xref:module-06.adoc#backup_vm[VM のバックアップの実行]
+** xref:module-06.adoc#restore_vm[VM のリストアの実行]
+
+//* xref:module-04.adoc[5. Template Management]
+//** xref:module-04.adoc#clone_customize_template[Clone and Customize a Template]
+//** xref:module-04.adoc#create_win[Create a Windows VM Template]
 
 **仮想マシン管理者／ユーザ向けモジュール**
