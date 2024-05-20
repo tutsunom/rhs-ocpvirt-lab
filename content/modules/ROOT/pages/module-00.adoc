@@ -121,12 +121,12 @@ image::module-04/17_Windows_2k19_Tile.png[link=self, window=blank, width=100%]
 +
 . テンプレートに関するデフォルトの構成を示すダイアログが表示されます。
 +
-NOTE: デフォルトの Windows Server 用テンプレートでは、ソース・ディスクとなる仮想ディスクイメージがないため、*Quick create VirtualMachine* のオプションはありません。ニーズに合わせて VM をカスタマイズすることになります。
+NOTE: デフォルトの Windows Server 用テンプレートでは、デフォルトではソース・ディスクとなる仮想ディスクイメージを指定していないため、*Quick create VirtualMachine* のオプションはグレーアウトされています。
 +
 image::module-04/18_Windows_2k19_Dialog.png[link=self, window=blank, width=100%]
 +
 . ダイアログでは次のように入力します。
-.. *Name* : `windows`
+.. *VirtualMachine name* : `windows`
 .. *Boot from CD* チェックボックスを有効化
 .. *CD source* : `URL (creates PVC)`
 .. *Image URI* : `http://192.168.123.100:81/Windows2019.iso`
