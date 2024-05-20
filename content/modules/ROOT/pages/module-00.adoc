@@ -314,37 +314,40 @@ NOTE: `Running` ステータスの横に、`Not migratable` と表示されて�
 IMPORTANT: Windows のインストールが完了するまで待つ必要はありません。次の項目に進んで下さい。
 
 [[admin_vms]]
-== Administering Virtual Machines
+== 仮想マシンの管理
 
-Administering and using virtual machines is more than simply creating and customizing their configuration. As the platform administrator, we also need to be able to control the VM states and trigger live migrations so that we can balance resources, perform maintenance tasks, and reconfigure nodes.
+仮想マシンを管理・使用することは、単にコンフィギュレーションを作成・カスタマイズするだけではありません。プラットフォーム管理者として、リソースのバランスをとり、メンテナンスタスクを実行し、ノードを再構成できるように、VMの状態を制御し、Live Migrationをトリガーできる必要もあります。
 
-. Click the *Configuration* tab, this is the entry point to obtain information about the resources of the Virtual Machine. 
+. Click the *Configuration* タブをクリックします。これは仮想マシンのリソースに関する情報を取得するためのエントリーポイントです。
 +
 image::module-00/11_Configuration_Tab_Nav.png[link=self, window=blank, width=100%]
 +
-It includes seven subtabs:
+これには７つのサブタブがあります：
 +
 image::module-00/12_Configuration_Tab.png[link=self, window=blank, width=100%]
 +
-* *Details*: This tab presents all of the physical features of the VM in a single panel. From here you can make edits to various descriptors and basic hardware configurations including modifying the cpu or memory, changing the hostname, attaching passthrough devices, and modifying the boot order.
-* *Storage*: This tab lists the disks attached to the system and allows you to add new disks to the system. If the guest is configured with the agent, it lists the filesystems and the utilization. Here it is possible to attach _ConfigMaps_, _Secrets_, and _Service Accounts_ as extra disks. This is useful when passing configuration data to the application(s) running in the virtual machine.
-* *Network*: This Tab shows the current network interfaces configured for the VM and allows for you to add new ones.
-* *Scheduling*: This tab includes advanced configuration options indicating where the VM should run and the strategy to follow for eviction. This tab is used to configure (anti)affinity rules, configure node selectors and tolerations, and other behaviors that affect which cluster nodes the VM can be scheduled to.
-* *SSH*: This tab allows you to configure remote access to the machine by creating an SSH service on a configured load-balancer, or by injecting public SSH keys if the feature is enabled.
-* *Initial run*: This tab allows us to configure _cloud-init_ for Linux or _sys-prep_ for Microsoft Windows, including setting the commands to be executed on the first boot, such as the injection of SSH keys, installation of applications, network configuration, and more.
-* *Metadata*: This tab shows current Labels and Annotations applied to the virtual machine. Modifying these values can help us tag our machines for specific purposes, or help us enable automated workflows by uniquely identifying machines. 
+* *Details*: このタブは、VM の物理的な機能を 1 つのパネルに表示します。ここから、CPU やメモリの変更、ホスト名の変更、パススルーデバイスのアタッチ、ブート順の変更など、様々な識別子や基本的なハードウェア設定を編集することができます。
 
-. List the disks associated with the VM by clicking on the *Storage* tab:
+* *Storage*: このタブには、システムに接続されているディスクが一覧表示され、システムに新しいディスクを追加できます。ゲストがエージェントで設定されている場合、ファイルシステムと使用率が一覧表示されます。ここでは、_ConfigMaps_、_Secrets_ および _Service Accounts_ を追加ディスクとしてアタッチできます。これは、仮想マシン内で実行されているアプリケーションに設定データを渡す場合に便利です。
+
+* *Network*: このタブには、VM に設定されている現在のネットワーク・インターフェイスが表示され、新しいインターフェイスを追加できます。
+
+* *Scheduling*: このタブには、VMを実行する場所と退避のための戦略を示す高度な構成オプションが含まれます。このタブは、(アンチ)アフィニティ・ルールの設定、ノード・セレクタと許容値の設定、およびVMをスケジューリングできるクラスタ・ノードに影響を与えるその他の動作の設定に使用されます。
+* *SSH*: このタブでは、設定されたロードバランサー上にSSHサービスを作成するか、機能が有効になっていれば公開SSH鍵を注入することで、マシンへのリモートアクセスを設定できます。
+* *Initial run*: このタブでは、Linuxの場合は _cloud-init_ 、MicroSoft Windowsの場合は _sys-prep_ を設定することができます。これには、SSHキーの注入、アプリケーションのインストール、ネットワーク設定など、最初のブート時に実行されるコマンドの設定が含まれます。
+* *Metadata*: このタブには、仮想マシンに適用されている現在のラベルとアノテーションが表示されます。これらの値を変更すると、特定の目的のためにマシンにタグを付けたり、マシンを一意に識別して自動化されたワークフローを有効にしたりできます。 
+
+. *Storage* タブをクリックして、VMに関連付けられているディスク一覧表示します:
 +
 image::module-00/13_Storage_Tab.png[link=self, window=blank, width=100%]
 +
-In this environment, the default StorageClass, which defines the source and type of storage used for the disk, is called *ocs-storagecluster-ceph-rbd-virtualization*. This storage is the default type provided by OpenShift Data Foundation (ODF) for running virtual machines. Each storage provider has different storage classes that define the characteristics of the storage backing the VM disk.
+この環境では、ディスクに使用されるストレージのソースとタイプを定義するデフォルトのStorageClassは、 *ocs-storagecluster-ceph-rbd-virtualization* と呼ばれます。このストレージは、仮想マシンを実行するために OpenShift Data Foundation (ODF) が提供するデフォルトのタイプです。各ストレージ・プロバイダには、VMディスクをバックアップするストレージの特性を定義する異なるストレージ・クラスがあります。
 
-. Examine the network interfaces attached to the VM by clicking on the *Network interfaces* subtab:
+. *Network interfaces* サブタブをクリックして、VMに接続されているネットワーク・インターフェイスを調べます:
 +
 image::module-00/14_Network_Tab.png[link=self, window=blank, width=100%]
 +
-When a VM is created, an interface on the *PodNetworking* network of type *masquerade* is created by default. This connects the VM to the SDN and provides access from the VM to outside the OpenShift cluster. Other VMs, and Pods, in the cluster can access the virtual machine using this interface. Furthermore, a VM connected to the SDN can be accessed externally using a Route, or Service with type load balancer, or even have a Network Attachment Definition configured to allow direct access to external networks.
+VM が作成されると、デフォルトで *masquerade* タイプの *PodNetworking* ネットワーク上のインターフェースが作成されます。これは VM を SDN に接続し、VM から OpenShift クラスタ外へのアクセスを提供します。クラスタ内の他の VM や Pod はこのインターフェースを使用して仮想マシンにアクセスできます。さらに、SDN に接続された VM は、Route やロードバランサータイプの Service を使って外部にアクセスしたり、外部ネットワークに直接アクセスできるように Network Attachment Definition を設定することもできます。
 
 [[vm_state]]
 == 仮想マシンの状態の制御
