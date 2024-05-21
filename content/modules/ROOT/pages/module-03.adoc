@@ -209,7 +209,7 @@ image::module-03/17_Allow_Host_Syntax.png[link=self, window=blank, width=100%]
 +
 [source,sh,role=execute]
 ----
-oc apply -f deny-all.yaml -n vmexamples
+oc apply -f allow-host.yaml -n vmexamples
 ----
 +
 image::module-03/18_Allow_Host_Applied.png[link=self, window=blank, width=100%]

@@ -65,7 +65,7 @@ NOTE: VM は InstanceType ウィザードから作成することも、カスタ
 
 === テンプレートから Linux VM を作成
 
-. *VirtualMachines* メニューから *Create VirtualMachine* をクリックします。
+. *VirtualMachines* メニューから *Create VirtualMachine* をクリックし、*From template* を選択します。
 +
 image::module-00/04_Create_VM_Button.png[link=self, window=blank, width=100%]
 
@@ -84,18 +84,18 @@ image::module-00/06_Create_VM_Quick.png[link=self, window=blank, width=100%]
 image::module-00/07_Create_VM_Quick_Name.png[link=self, window=blank, width=100%]
 
 +
-. After a few seconds, expect to see the VM is *Running*. During this time, the storage provider has cloned the template disk so that it can be used by the newly created virtual machine. The amount of time this takes can vary based on the storage provider being used to create the boot disk.
+. 数秒後、作成した VM が `Running` であることが確認できるでしょう。この間、ストレージプロバイダはテンプレートで定義されている仮想ディスクをクローンし、新しい VM で使用できるようにしています。これにかかる時間は、ブートディスクの作成に使用するストレージプロバイダによって異なります。
 +
 image::module-00/08_Fedora_Running.png[link=self, window=blank, width=100%]
 
-. 数秒後、作成した VM が `Running` であることが確認できるでしょう。VM が作成されたら、作成のプロセスの詳細を確認するために *Events* タブを見てみましょう。もし VM の作成に問題があっても、このタブに表示されます。
+. VM が作成されたら、作成のプロセスの詳細を確認するために *Events* タブを見てみましょう。もし VM の作成に問題があっても、このタブに表示されます。
 +
 image::module-00/09_Fedora_Events.png[link=self, window=blank, width=100%]
 +
 * はじめに _DataVolume_ が作成されます。_DataVolume_ は VM ディスクの作成を管理するために使われ、VM 作成のフローにおいてクローンやインポートの処理を OpenShift の永続ストレージ上に抽象化しています。
 * その後、_VM_ が起動します。
 
-. VMに関する情報を取得するには、*Details* タブをクリックします。このテンプレートでは、デフォルトで 1 CPU と 2GiB メモリであることを確認してみましょう。管理者は、VM のデフォルト構成をカスタマイズして新しいテンプレートを作成できます。
+. VMに関する情報を取得するには、*Overview* タブをクリックします。このテンプレートでは、デフォルトで 1 CPU と 2GiB メモリであることを確認してみましょう。管理者は、VM のデフォルト構成をカスタマイズして新しいテンプレートを作成できます。
 +
 SDN (Software-defined Network) 上の VM の IP アドレスも、ストレージデバイス、システム使用率、VM をホストするクラスタノードなどの情報とともに、このページに表示されます。デフォルトでは、VM は Pod Network に接続されています。後段のラボでは、高度なネットワーキング・オプションと、VM の接続性をカスタマイズする方法を探ります。
 +
@@ -128,7 +128,7 @@ image::module-04/18_Windows_2k19_Dialog.png[link=self, window=blank, width=100%]
 .. *VirtualMachine name* : `windows`
 .. *Boot from CD* チェックボックスを有効化
 .. *CD source* : `URL (creates PVC)`
-.. *Image URI* : `http://192.168.123.100:81/Windows2019.iso`
+.. *Image URL* : `http://192.168.123.100:81/Windows2019.iso`
 .. *Disk size* : `5 GiB`
 .. *Disk source* : `Blank`
 .. *Disk size* : `60 GiB`
@@ -317,7 +317,7 @@ IMPORTANT: Windows のインストールが完了するまで待つ必要はあ�
 
 仮想マシンを管理・使用することは、単にコンフィギュレーションを作成・カスタマイズするだけではありません。プラットフォーム管理者として、リソースのバランスをとり、メンテナンスタスクを実行し、ノードを再構成できるように、VMの状態を制御し、Live Migrationをトリガーできる必要もあります。
 
-. Click the *Configuration* タブをクリックします。これは仮想マシンのリソースに関する情報を取得するためのエントリーポイントです。
+. `fedora01` VM の *Configuration* タブをクリックします。これは仮想マシンのリソースに関する情報を取得するためのエントリーポイントです。
 +
 image::module-00/11_Configuration_Tab_Nav.png[link=self, window=blank, width=100%]
 +

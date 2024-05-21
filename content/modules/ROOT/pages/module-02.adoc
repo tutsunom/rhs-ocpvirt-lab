@@ -56,7 +56,7 @@ VM スナップショットにより、クラスタ管理者やアプリケー�
 
 === スナップショットの作成と使用
 
-. 左メニューで *Virtualization* -> *VirtualMachines* に移動し、`vmexamples` プロジェクト内の `fedora0` VM を選択します。
+. 左メニューで *Virtualization* -> *VirtualMachines* に移動し、`vmexamples` プロジェクト内の `fedora01` VM を選択します。
 +
 image::module-02/03_VM_Overview.png[link=self, window=blank, width=100%]
 +
