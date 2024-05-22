@@ -42,7 +42,7 @@ image::module-06/03_OADP_YAML.png[]
 [[backup_vm]]
 == VM のバックアップの実行
 
-`fedora02` VM のバックアップを実行します。バックアップする対象の選択は、`app` と `vm.kubevirt.io/name` の 2 つのラベルで指定します。この指定で、VM の定義、ディスク、および ConfigMap や Secret といった VM で使用されているオブジェクトが含まれます。
+`fedora01` VM のバックアップを実行します。バックアップする対象の選択は、`app` と `vm.kubevirt.io/name` の 2 つのラベルで指定します。この指定で、VM の定義、ディスク、および ConfigMap や Secret といった VM で使用されているオブジェクトが含まれます。
 
 . 1 つ前の画面に戻って *Backup* タブに移動し、*Create Backup* を押します。
 +
@@ -55,7 +55,7 @@ image::module-06/04_Backup_Tab.png[]
 apiVersion: velero.io/v1
 kind: Backup
 metadata:
-  name: backup-fedora02
+  name: backup-fedora01
   labels:
     velero.io/storage-location: default
   namespace: openshift-adp
@@ -63,19 +63,19 @@ spec:
   hooks: {}
   orLabelSelectors:
   - matchLabels:
-      app: fedora02
+      app: fedora01
   - matchLabels:
-      vm.kubevirt.io/name: fedora02
+      vm.kubevirt.io/name: fedora01
   includedNamespaces:
   - vmexamples
   storageLocation: oadp-dpa-1
   ttl: 720h0m0s
 ----
 +
-この YAML の内容は、`vmexample` プロジェクトの中で、ラベル `app: fedora02` を持つオブジェクトが、`DataProtectionApplication` の設定で指定されたバックアップターゲットにバックアップされることを示しています。
+この YAML の内容は、`vmexample` プロジェクトの中で、ラベル `app: fedora01` を持つオブジェクトが、`DataProtectionApplication` の設定で指定されたバックアップターゲットにバックアップされることを示しています。
 +
 [IMPORTANT]
-`fedora02` VM が存在しない場合は、上記の YAML でラベルセレクタを変更して存在する VM のラベルに一致させてください。
+`fedora01` VM が存在しない場合は、上記の YAML でラベルセレクタを変更して存在する VM のラベルに一致させてください。
 
 . `Status` が `Completed` に変わるまで待ちます。これは VM が正常にバックアップされたことを示します。
 +
@@ -84,11 +84,11 @@ image::module-06/05_Backup_Completed.png[]
 [[restore_vm]]
 == VM のリストアの実行
 
-取得した `fedora02` VM のバックアップから VM をリストアします。
+取得した `fedora01` VM のバックアップから VM をリストアします。
 
-. リストアの前に `fedora02` VM を削除します。左メニューで *Virtualization* -> *VirtualMachines* に移動し、`fedora02` VM の 3 つのドットアイコンをクリックして *Delete* を選択します。
+. リストアの前に `fedora01` VM を削除します。左メニューで *Virtualization* -> *VirtualMachines* に移動し、`fedora01` VM の 3 つのドットアイコンをクリックして *Delete* を選択します。
 
-. *Delete disks* がチェックされていることを確認し、*Delete* をクリックします。`fedora02` VM が削除されるまで待ちます。
+. *Delete disks* がチェックされていることを確認し、*Delete* をクリックします。`fedora01` VM が削除されるまで待ちます。
 
 . 左メニューで *Operators* -> *Installed Operators* に移動し、*OADP Operator* を選択します。 
 
@@ -103,10 +103,10 @@ image::module-06/06_Restore_Tab.png[]
 apiVersion: velero.io/v1
 kind: Restore
 metadata:
-  name: restore-fedora02
+  name: restore-fedora01
   namespace: openshift-adp
 spec:
-  backupName: backup-fedora02
+  backupName: backup-fedora01
   includedResources: [] 
   excludedResources:
   - nodes
@@ -121,7 +121,7 @@ spec:
 +
 image::module-06/07_Restore_Completed.png[]
 
-. *Virtualization* -> *Virtual Machines* に戻り、`fedora02` VM がリストアされていることを確認します。
+. *Virtualization* -> *Virtual Machines* に戻り、`fedora01` VM がリストアされていることを確認します。
 +
 image::module-06/08_VM_Restored.png[]
 
