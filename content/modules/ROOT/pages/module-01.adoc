@@ -170,7 +170,7 @@ image::module-01/12_Edit_Machine_Count_4.png[link=self, window=blank, width=100%
 +
 image::module-01/13_Machine_Count_3_4.png[link=self, window=blank, width=100%]
 +
-. 次に、左メニューから *Compute* -> *MachineSets* をクリックすると、全ての *Machines* のリストが表示されます。先ほど追加した `worker4` が *Provisioning* 状態になっているはずです。
+. 次に、左メニューから *Compute* -> *Machines* をクリックすると、全ての *Machines* のリストが表示されます。先ほど追加した `worker4` が *Provisioning* 状態になっているはずです。
 +
 NOTE: インストールプロセス中にノードが数回再起動するため、このステップの完了には数分かかることがあります。
 +
