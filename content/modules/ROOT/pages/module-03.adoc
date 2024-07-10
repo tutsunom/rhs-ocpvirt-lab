@@ -28,7 +28,7 @@
 VM で OVS ブリッジを使用するには、*Network Attachment Definition* を作成する必要があります。これは OpenShift クラスタに対してネットワークに関する情報を提供し、VM が接続できるようにするものです。*Network Attachment Definition* は `default` プロジェクトで作成されない限りは、作成されたプロジェクトで固有のものです。このため、管理者は自分の VM を管理するユーザがどのネットワークを利用でき、また利用できないかを制御することができます。一度 *Network Attachment Definition* を作ると、VM のネットワークアダプタを設定する際に使うことができます。
 
 [NOTE]
-*Network Attachment Definition* は既存のネットワークデバイスを利用するよう OpenShift クラスタに指示します。このラボでは `ovs-br` という名前で事前に作成されたブリッジを使います。この名前をデバイス名として指定しないと、どのノードにも VM を配置できないので、注意してください。
+*Network Attachment Definition* は既存のネットワークデバイスを利用するよう OpenShift クラスタに指示します。このラボでは `ovs-br` という名前で事前に作成されたブリッジを介して、クラスタ外部の物理ネットワークに接続します。この `ovs-br` と物理ネットワークとのマッピングを `vm-network` という名前で事前に登録しています。 *Network Attachment Definition* を定義する際には、この名前を指定しないと、どのノードにも VM を配置できないので、注意してください。
 
 OpenShift ノードのネットワーク設定を管理するには、NMState Operator というツールを使います。NMState によって、YAML または OpenShift Web コンソールの *NodeNetworkConfigurationPolicy* ウィザードを使って OpenShift ノード上にネットワークインターフェースを構成することができます。あなたのニーズとネットワーク要件に合うネーミングをすることができます。NMState とホストネットワーキングの詳細、および構成の表示と管理方法については、
 https://docs.openshift.com/container-platform/4.15/networking/k8s_nmstate/k8s-nmstate-about-the-k8s-nmstate-operator.html[ドキュメント] 参照してください。
