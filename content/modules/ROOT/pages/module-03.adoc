@@ -68,7 +68,7 @@ image::module-03/03_NAD_YAML.png[link=self, window=blank, width=100%]
 NOTE: ほとんどの場合、1 つの OVS ブリッジはそれぞれ指定された VLAN タグ ID を持つ
 多数の *Network Attachment Definition* をサポートします。このラボでは、VLAN タグなしのネットワークを使用するため、VLAN ID は不要です。
 +
-. 作成した `vlan0` *NAD (NetworkAttachmentDefinition)* の詳細を確認します。これおは `vmexamples` プロジェクトで作成されているので、他のプロジェクトでは使用できません。
+. 作成した `vlan0` *NAD (NetworkAttachmentDefinition)* の詳細を確認します。これは `vmexamples` プロジェクトで作成されているので、他のプロジェクトでは使用できません。
 +
 image::module-03/04_NAD_Created.png[link=self, window=blank, width=100%]
 
