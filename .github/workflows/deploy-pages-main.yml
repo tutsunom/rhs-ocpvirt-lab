@@ -1,10 +1,10 @@
-name: Deploy "main" branch static content to Pages
+name: Deploy "aro-virt-jp" branch static content to Pages
 # Simple workflow fname: github pages
 
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [aro-virt-jp]
     paths-ignore:
       - "README.adoc"
       - ".gitignore"
