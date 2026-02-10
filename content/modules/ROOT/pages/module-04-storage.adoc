@@ -1,162 +1,163 @@
-= Storage Management
+= ストレージ管理
 
-Red Hat OpenShift supports multiple types of storage, both for on-premises and cloud providers. OpenShift Virtualization can use any supported container storage interface (CSI) provisioner in the environment where your workload is running.
+Red Hat OpenShiftは、オンプレミスとクラウドプロバイダーの両方に対応した複数の種類のストレージをサポートしています。OpenShift Virtualizationは、ワークロードが実行されている環境で、サポートされている任意のコンテナストレージインターフェース（CSI）プロビジョナーを使用できます。
 
-Some physical storage system examples include: Dell/EMC, Fujitsu, Hitachi, NetApp, and Pure Storage.
+物理ストレージシステムの例としては、Dell/EMC、Fujitsu、Hitachi、NetApp、Pure Storageなどがあります。
 
-Some software-defined storage examples include: IBM Fusion Data Foundation, OpenShift Data Foundation (ODF), and Portworx.
+ソフトウェア定義ストレージの例としては、IBM Fusion Data Foundation、OpenShift Data Foundation（ODF）、Portworxなどがあります。
 
-NOTE: This list is not exhaustive, please see the https://catalog.redhat.com/platform/red-hat-openshift/virtualization#virtualization-infrastructure[Red Hat EcoSystem Catalog^] for information on all of the supported storage solutions.
+NOTE: このリストはすべてではありません。サポートされているすべてのストレージソリューションについては、https://catalog.redhat.com/platform/red-hat-openshift/virtualization#virtualization-infrastructure[Red Hat EcoSystem Catalog^]を参照してください。
 
-This workshop segment will explore Persistent Volume Claims (PVCs), which are used to request storage from the provider and store a VM disk. Many storage providers also support snapshots and clones of their devices, be sure to check with your vendor to verify the features supported by the CSI driver and storage device.
+このワークショップセグメントでは、Persistent Volume Claims（PVC）について説明します。これはプロバイダーからストレージをリクエストし、VMディスクを保存するために使用されます。多くのストレージプロバイダーは、そのデバイスのスナップショットとクローンもサポートしています。CSIドライバーとストレージデバイスでサポートされている機能を確認するために、ベンダーに確認してください。
 
-Notably, there are no restrictions on storage protocol (e.g. NFS, iSCSI, FC, etc.) specific to OpenShift Virtualization. The only request is that the *RWX access mode* is available, as it is required to support live migration of VMs within the cluster. Otherwise, the right choice for storage is that which best meets the needs of your organization's VMs and Applications.
+特に、OpenShift Virtualizationに固有のストレージプロトコル（NFS、iSCSI、FCなど）に制限はありません。唯一のリクエストは、*RWXアクセスモード*が利用可能であることです。これはクラスター内のVMのライブマイグレーションをサポートするために必要です。それ以外の場合、ストレージの正しい選択は、組織のVMとアプリケーションのニーズを最もよく満たすものです。
 
-Please observe the following graphic for a demonstration of the CSI workflow for provisioning storage in Red Hat OpenShift.
+Red Hat OpenShiftでストレージをプロビジョニングするためのCSIワークフロープロセスのデモンストレーションについては、以下のグラフィックをご覧ください。
 
 image::2025_spring/module-04-storage/00_Disk_Concepts.png[link=self, window=blank, width=100%]
 
 [[examine_pvc]]
 
-== Examine the PVC for a VM
+== VMのPVCを検査する
 
-In this lab, we are going to take a closer look at the storage behind the virtual machine we just created *fedora01*.
+このラボでは、前のセクションで作成した仮想マシン*fedora01*の背後にあるストレージをしっかりと見てみます。
 
-. Start by clicking on the left menu for *Storage* -> *PersistentVolumeClaims*. Make sure you are in the *vmexamples-{user}* namespace, you should see the *fedora01* PVC that was created when you created the *fedora01* VM in the previous section.
+. 左側のメニューで*Storage* -> *PersistentVolumeClaims*をクリックして開始します。*vmexamples-{user}*名前空間にいることを確認します。前のセクションで*fedora01* VMを作成したときに作成された*fedora01* PVCが表示されます。
 +
 image::2025_spring/module-04-storage/01_PVC_List.png[link=self, window=blank, width=100%]
 
-. Click on the *fedora01* PVC and you will be presented with a screen that shows additional details about the storage volume backing the VM.
+. *fedora01* PVCをクリックすると、VMをバッキングするストレージボリュームに関する追加の詳細情報が表示されます。
 +
-. Notice the following information about the persistent volume claim:
-.. The PVC is currently bound successfuly
-.. The PVC has a requested capacity and size of 30GiB
-.. The Access mode of the PVC is ReadWriteMany (RWX)
-.. The Volume mode of the PVC is Block
-.. The volume is using the *ocs-storagecluster-ceph-rbd-virtualization* storage class.
+. Persistent Volume Claimについて、以下の情報に注意してください:
+.. PVCは現在正常にバインドされています
+.. PVCはリクエストされた容量とサイズが30GiBです
+.. PVCのアクセスモードはReadWriteMany（RWX）です
+.. PVCのボリュームモードはBlockです
+.. ボリュームは*ocs-storagecluster-ceph-rbd-virtualization*ストレージクラスを使用しています。
 +
 image::2025_spring/module-04-storage/02_Fedora01_PVC_Details.png[link=self, window=blank, width=100%]
 
 [[managing_snapshots]]
-== Managing Snapshots
+== スナップショットの管理
 
-OpenShift Virtualization relies on the CSI storage provider's snapshot capability to create disk snapshots for the virtual machine, which can be taken "online" while the VM is running, or "offline" while the VM is powered off. If the KVM integrations package (qemu-tools) is installed on the VM, you will also have the option of automatically quiescing the guest operating system (quiescing ensures that the snapshot of the disk represents a consistent state of the guest file systems, e.g., buffers are flushed and the journal is consistent).
+OpenShift Virtualizationは、CSIストレージプロバイダーのスナップショット機能に依存して、仮想マシンのディスクスナップショットを作成します。これはVMが実行中に「オンライン」で、またはVMがオフの間に「オフライン」で取得できます。KVM統合パッケージ（qemu-tools）がVMにインストールされている場合、ゲストオペレーティングシステムを自動的にクエスチング（quiescing）するオプションも用意されます。クエスチングは、ディスクスナップショットがゲストファイルシステムの一貫性のある状態（例えば、バッファーがフラッシュされ、ジャーナルが一貫している）を表すことを確認します。
 
-Since disk snapshots are dependent on the storage implementation, abstracted by the CSI, both the performance impact and capacity used will depend on the storage provider. Work with your storage vendor to determine how the system will manage PVC snapshots and the impact they may or may not have on your expected performance.
+ディスクスナップショットはストレージ実装に依存し、CSIで抽象化されるため、パフォーマンスへの影響と使用される容量の両方がストレージプロバイダーに依存します。PVCスナップショットをシステムがどのように管理するか、および期待されるパフォーマンスに影響があるかどうかを判断するために、ストレージベンダーに相談してください。
 
-IMPORTANT: Snapshots, by themselves, do not provide a backup or disaster recovery capability as they are usually stored locally on the same storage system as the original physical volume. To survive a true disaster, the data would still need to be protected in other ways, such as having one or more copies stored in a different location, or mirrored to a storage system at a remote location to overcome the storage system itself failing.
+IMPORTANT: スナップショット自体は、バックアップまたはディザスタリカバリー機能を提供しません。通常、元の物理ボリュームと同じストレージシステム上にローカルに保存されるためです。真のディザスタリカバリーを乗り切るには、別の場所に1つ以上のコピーを保存するか、リモート位置のストレージシステムにミラーリングするなど、データを他の方法で保護する必要があります。
 
-With the VM snapshots feature, cluster administrators and application developers can:
+VM スナップショット機能により、クラスター管理者とアプリケーション開発者は次のことができます:
 
-* Create a new snapshot
-* List all snapshots attached to a specific VM
-* Revert a VM to a snapshot
-* Delete an existing VM snapshot
+* 新しいスナップショットを作成する
+* 特定のVMにアタッチされているすべてのスナップショットをリストする
+* VMをスナップショットに復元する
+* 既存のVMスナップショットを削除する
 
-=== Creating and Using Snapshots
+=== スナップショットの作成と使用
 
-. Navigate back to *Virtualization* perspective dropdown, and then click on *VirtualMachines* in the left-side menu. Expand the project *vmexamples-{user}* in the center column and highlight the *fedora01* virtual machine.
+. *Virtualization*パースペクティブドロップダウンに戻り、左側のメニューで*VirtualMachines*をクリックします。中央列でプロジェクト*vmexamples-{user}*を展開し、*fedora01*仮想マシンをハイライトします。
 +
 image::2025_spring/module-04-storage/03_VM_Overview.png[link=self, window=blank, width=100%]
 
-. Notice there are currently no snapshots of this VM listed on the overview page.
+. 現在、このVMのスナップショットが概要ページにリストされていないことに注意してください。
 +
 image::2025_spring/module-04-storage/04_Snapshots_Overview.png[link=self, window=blank, width=100%]
 
-. Navigate to the *Snapshots* tab at the top of the page.
+. ページの上部にある*Snapshots*タブに移動します。
 +
 image::2025_spring/module-04-storage/05_Snapshot_Menu.png[link=self, window=blank, width=100%]
 
-. Press *Take snapshot* and a dialog will open.
+. *Take snapshot*を押すとダイアログが開きます。
 +
 image::2025_spring/module-04-storage/06_VM_Snapshot_Dialog.png[link=self, window=blank, width=100%]
 +
-NOTE: There is a warning about the *cloudinitdisk* not being included in the snapshot. This is expected and happens because it is an ephemeral disk used for inital boot.
+NOTE: *cloudinitdisk*がスナップショットに含まれていないという警告があります。これは予想されており、初期ブート用のエフェメラルディスクであるため発生します。
 
-. A name will be auto-generated for the Snapshot. Press *Save* and wait until the *status* shows as *Operation complete*.
+. スナップショット用の名前が自動生成されます。*Save*を押して、*status*が*Operation complete*と表示されるまで待機します。
 +
 image::2025_spring/module-04-storage/07_VM_Snapshot_Taken.png[link=self, window=blank, width=100%]
 
-. Press the three-dot menu, and see that the *Restore* option is greyed out because the VM is currently running.
+. 3ドットメニューを押すと、VMが現在実行中であるため、*Restore*オプションがグレーアウトされていることに気付きます。
 +
 image::2025_spring/module-04-storage/08_VM_Restore_Disabled.png[link=self, window=blank, width=100%]
 
-. Next, switch to the *Console* tab. We are going to login and perform a modification that prevents the VM from being able to boot.
+. 次に、*Console*タブに切り替えます。VMがブートできないようにする変更を実行するためにログインします。
 +
 image::2025_spring/module-04-storage/09_Console_Login.png[link=self, window=blank, width=100%]
 +
-NOTE: There are copy icons next both the *User name* and *Password* and a *Paste to console* button available all available here, which makes the login process much easier.
+NOTE: *User name*と*Password*の両方の横と*Paste to console*ボタンにコピーアイコンがあり、ログインプロセスがはるかに簡単になります。
 
-. Once you are logged in, execute the following command:
+. ログインしたら、次のコマンドを実行します:
 +
 [source,sh,role=execute]
 ----
 sudo rm -rf /boot/grub2; sudo shutdown -r now
 ----
 +
-. Once executed, the virtual machine will automatically restart, but it will no longer be able to boot successfully.
+. 実行すると、仮想マシンは自動的に再起動しますが、正常にブートできなくなります。
 +
 image::2025_spring/module-04-storage/10_Bootloader_Broken.png[link=self, window=blank, width=100%]
 +
-IMPORTANT: In the previous step, the operating system was shutdown from within the guest. However, OpenShift Virtualization will restart it automatically by default based on policy as the pod hosting the VM is still running. This behavior can be changed globally or on a per-VM basis.
+IMPORTANT: 前のステップでは、オペレーティングシステムがゲスト内からシャットダウンされました。ただし、OpenShift Virtualizationは、VMをホストしているポッドがまだ実行中であるため、デフォルトではポリシーに基づいて自動的に再起動します。この動作はグローバルにまたはVM単位で変更できます。
 
-. Using the *Actions* dropdown menu or the shortcut button in the top right corner, *Stop* the VM. This process can take a long time since it attempts a graceful shutdown and the machine is in an unstable state. If you click on the *Actions* dropdown menu again you will have the option to *Force stop*. Please make use of this option in order to continue with the lab.
+. *Actions*ドロップダウンメニューまたは右上隅のショートカットボタンを使用して、VMを*Stop*します。マシンが不安定な状態にあるため、グレースフルシャットダウンを試みるため、このプロセスには長い時間がかかる場合があります。*Actions*ドロップダウンメニューをもう一度クリックすると、*Force stop*オプションが表示されます。ラボを続行するには、このオプションを使用してください。
 
-. You can click on the *Overview* tab to confirm that the VM has stopped. You can also see the snapshot we recently took is now listed in the *Snapshots* tile.
+. *Overview*タブをクリックして、VMが停止したことを確認できます。最近取得したスナップショットが*Snapshots*タイルにリストされている場合にも表示されます。
 +
 image::2025_spring/module-04-storage/11_VM_Stopped_Snapshot.png[link=self, window=blank, width=100%]
 
-. On the *Snapshots* tile, click the three-dot menu next to our snapshot, and with the VM stopped, you will find *Restore* is no longer greyed out. Click it.
+. *Snapshots*タイルで、スナップショットの横にある3ドットメニューをクリックします。VMが停止している場合、*Restore*はグレーアウトされなくなります。クリックします。
 +
 image::2025_spring/module-04-storage/12_VM_Restore.png[link=self, window=blank, width=100%]
 
-. In the dialog shown, press *Restore*.
+. 表示されたダイアログで、*Restore*を押します。
 +
 image::2025_spring/module-04-storage/13_VM_Restore_Dialog.png[link=self, window=blank, width=100%]
 
-. Wait until the VM is restored, the process should be fairly quick. If you click on the *Snapshots* tab at the top you can see details of the last restore operation.
+. VMが復元されるまで待機します。プロセスはかなり迅速である必要があります。上部にある*Snapshots*タブをクリックすると、最後の復元操作の詳細が表示されます。
 +
 image::2025_spring/module-04-storage/14_VM_Restored.png[link=self, window=blank, width=100%]
 
-. Return to *Overview* tab, and start the VM.
+. *Overview*タブに戻り、VMを開始します。
 +
 image::2025_spring/module-04-storage/15_VM_Start.png[link=self, window=blank, width=100%]
 
-. Click on the *Console* tab to confirm that the VM has now restarted and booted back up to the OS successfully.
+. *Console*タブをクリックして、VMが再起動し、正常にOSでブートアップしたことを確認します。
 +
 image::2025_spring/module-04-storage/16_VM_Running.png[link=self, window=blank, width=100%]
 
 [[clone_vm]]
-== Clone a Virtual Machine
+== 仮想マシンのクローン作成
 
-Cloning creates a new VM that uses its own disk image for storage, but most of the clone's configuration and stored data is identical to the source VM.
+クローン作成は、新しいVMがそれ自体のディスクイメージを使用してストレージするが、クローンのほとんどの設定と保存データはソースVMと同じである新しいVMを作成します。
 
-. Return to the *Overview* screen, and click the *Actions* dropdown menu to see the option to clone the VM.
+. *Overview*画面に戻り、*Actions*ドロップダウンメニューをクリックしてVMのクローン作成オプションを確認します。
 +
 image::2025_spring/module-04-storage/17_Overview_Actions_Clone.png[link=self, window=blank, width=100%]
 
-. Press *Clone* from the *Actions* menu, and a dialog will open. Name the cloned VM *fedora02*, and ensure that the checkbox to *Start VirtualMachine on clone* remains unchecked, then click *Clone*.
+. *Actions*メニューから*Clone*を押すとダイアログが開きます。クローンされたVMを*fedora02*という名前を付けて、*Start VirtualMachine on clone*のチェックボックスをチェックしたままにして、*Clone*をクリックします。
 +
 image::2025_spring/module-04-storage/18_VM_Clone_Dialog.png[link=self, window=blank, width=100%]
 
-. A new VM is created, the disks are cloned and automatically the portal will redirect you to the new VM, and you can see the *Created* time as very recently.
+. 新しいVMが作成され、ディスクがクローンされ、自動的にポータルが新しいVMにリダイレクトされ、*Created*時刻が最近であることを確認できます。
 +
 image::2025_spring/module-04-storage/19_VM_Cloned.png[link=self, window=blank, width=100%]
 +
-IMPORTANT: The cloned VM will have the same identity as the source VM, which may cause conflicts with applications and other clients interacting with the VM. Use caution when cloning a VM connected to an external network or in the same project.
+IMPORTANT: クローンされたVMは、ソースVMと同じアイデンティティを持っており、VMと対話するアプリケーションおよび他のクライアントとの競合を引き起こす可能性があります。外部ネットワークに接続されているVMをクローンする場合のに注意してください。
 
-. Click on the *YAML* menu at the top of the screen, you will see that the name of the VM is *fedora02*, however there are some labels that remain from the *fedora01* source VM that will need to be manually updated.
+. 画面の上部にある*YAML*メニューをクリックすると、VMの名前は*fedora02*ですが、*fedora01*ソースVMから残されたラベルのいくつかは手動で更新する必要があります。
 +
 image::2025_spring/module-04-storage/20_Cloned_VM_YAML.png[link=self, window=blank, width=100%]
 
-. Modify the the *app* and *kubevirt.io/domain* values in the YAML so that they are set to *fedora02* then click the *Save* button at the bottom, you will prompted that *fedora02* has been updated to a new version. Doing this now will allow us to avoid issues working with this VM in later modules.
+. YAMLの*app*と*kubevirt.io/domain*の値を*fedora02*に設定するように変更してから、下部の*Save*ボタンをクリックします。*fedora02*が新しいバージョンに更新されたことを確認されます。今これを行うと、後続のモジュールでこのVMで問題が発生しないようにすることができます。
 +
 image::2025_spring/module-04-storage/21_Cloned_VM_YAML_Saved.png[link=self, window=blank, width=100%]
 
-. When you have completed the modifications to the virtual machine's YAML go ahead and start it up so that you have both *fedora01* and *fedora02* running.
+. 仮想マシンのYAMLの変更が完了したら、それを起動して、*fedora01*と*fedora02*の両方が実行されるようにします。
 +
 image::2025_spring/module-04-storage/22_Fedora02_Running.png[link=self, window=blank, width=100%]
 
-== Summary
+== まとめ
 
-In this section of our lab we explored the storage options that are available when managing virtual machines. We also performed several VM management functions that are dependant on the storage provisioned for the virtual machine, including taking snapshots of VMs to peform basic restores, and cloning of VMs to be used in other projects or to help streamline future development.
+このラボのセクションでは、仮想マシンを管理する際に利用可能なストレージオプションを検討しました。また、仮想マシン用にプロビジョニングされたストレージに依存する複数のVM管理機能も実行しました。これには、基本的な復元を実行するためのVMのスナップショット取得、および他のプロジェクトで使用するか、将来の開発を効率化するためのVMのクローン作成が含まれます。
+

@@ -1,42 +1,42 @@
-=  Network Management for Virtual Machines
+=  仮想マシンのネットワーク管理
 
-== Introduction
+== はじめに
 
-As mentioned in the previous section, all virtual machines are attached to the OpenShift software-defined network (SDN) by default, which enables access from other workloads on the OpenShift cluster, including other VMs and any OpenShift native applications, and for the virtual machines and the applications they host to be managed in a more modernized workflow.
+前のセクションで説明したように、すべての仮想マシンはデフォルトでOpenShiftソフトウェア定義ネットワーク（SDN）に接続されており、これにより、他のOpenShiftクラスタ上のワークロード（他のVM、OpenShiftネイティブアプリケーションを含む）からのアクセスが可能になり、仮想マシンとそれらがホストするアプリケーションをより現代的なワークフローで管理できるようになります。
 
-* The SDN provides additional features for abstracting, connecting, and exposing applications in a controlled manner, whether deployed as VMs or Pods in the cluster. These include the *Service* and *Route* features of OpenShift.
-* OpenShift's network policy engine allows the VM user or administrator to create rules which allow or deny network traffic to and from individual VMs or entire projects/namespaces.
+* SDNは、クラスタに展開されているVM、ポッド、その他のアプリケーションに関わらず、アプリケーションの抽象化、接続、および制御された方法での公開に関する追加機能を提供します。これらにはOpenShiftの*Service*および*Route*機能が含まれます。
+* OpenShiftのネットワークポリシーエンジンにより、VM ユーザーまたは管理者は、個別のVMまたはプロジェクト/名前空間全体との間のネットワークトラフィックを許可または拒否するルールを作成できます。
 
-However, it is also possible for virtual machines to connect directly to one or more physical networks, such as untagged network or VLANs, when needed. This is in addition to the SDN, which means that, for example, the administrator can connect to the VM from an external IP address and VMs can connect directly using a Layer2 network.
+ただし、必要に応じて、仮想マシンがタグなしネットワークやVLANなどの1つ以上の物理ネットワークに直接接続することも可能です。これはSDNに加えて機能するため、たとえば、管理者は外部IPアドレスからVMに接続でき、VMはレイヤー2ネットワークを使用して直接接続できます。
 
-At a high level, this is done by configuring the host networking, such as a Linux bridge. This workshop segment will walk through the next step in that process, creating a network attachment definition to allow VMs to connect to that bridge and, therefore, directly to the physical network.
+大まかには、Linuxブリッジなどのホストネットワーキングを設定することで行われます。このワークショップのセグメントでは、ネットワークアタッチメント定義を作成してVMがそのブリッジに接続でき、したがって直接物理ネットワークに接続できるようにするプロセスの次のステップを説明します。
 
-NOTE: The OpenShift environment has already been configured with a Linux Bridge on each compute node your virtual machines will connect to, thus allowing for easy connectivity with/from outside network resources.
+NOTE: OpenShift環境は、仮想マシンが接続する各コンピュートノード上にLinuxブリッジが既に設定されており、外部ネットワークリソースとの接続が容易になっています。
 
 [[review]]
-== Review environment
+== 環境の確認
 
-The *Kubernetes NMState Operator* provides a Kubernetes API for performing state-driven network configuration across the OpenShift Container Platform cluster's nodes with NMState. The Kubernetes NMState Operator provides users with functionality to configure various network interface types, DNS, and routing on cluster nodes. Additionally, the daemons on the cluster nodes periodically report on the state of each node's network interfaces to the API server.
+*Kubernetes NMState Operator*は、NMStateを使用してOpenShift Container Platformクラスタのノード全体で状態駆動型ネットワーク設定を実行するためのKubernetes APIを提供します。Kubernetes NMState Operatorは、various network interface types、DNS、およびクラスタノード上のルーティングを設定する機能をユーザーに提供します。さらに、クラスタノード上のデーモンは、各ノードのネットワークインターフェースの状態をAPIサーバーに定期的に報告します。
 
-. In the left-side menu, click on *Networking* and then *NodeNetworkState* to review the current configuration.
+. 左側のメニューで*Networking*をクリックし、次に*NodeNetworkState*をクリックして現在の設定を確認します。
 +
 image::2025_spring/module-09-networking/01_NodeNetworkState_List.png[link=self, window=blank, width=100%]
 
-. As stated, you will notice that the worker nodes have a linux bridge already configured to be used for this module. Expand one of the workers and click on the bridge *br-flat* to gather more information about it.
+. 説明したように、ワーカーノードにはこのモジュール用に使用するために既に設定されたLinuxブリッジがあることに気付くでしょう。ワーカーの1つを展開し、ブリッジ*br-flat*をクリックして、それに関する詳細情報を取得します。
 +
 image::2025_spring/module-09-networking/02_NodeNetworkState_Info.png[link=self, window=blank, width=100%]
 
-. Close the bridge details by clicking on the X in the corner. This bridge named *br-flat* was created using the *Kubernetes NMState Operator*. Click on *NodeNetworkConfigurationPolicy* in the left-side menu to explore more.
+. コーナーの[X]をクリックしてブリッジの詳細を閉じます。*br-flat*という名前のこのブリッジは、*Kubernetes NMState Operator*を使用して作成されました。左側のメニューで*NodeNetworkConfigurationPolicy*をクリックしてさらに詳しく確認します。
 +
 image::2025_spring/module-09-networking/03_NodeNetworkConfigurationPolicy_List.png[link=self, window=blank, width=100%]
 
-. Select *br-flat* to get information
+. *br-flat*を選択して情報を取得します
 +
 image::2025_spring/module-09-networking/04_NodeNetworkConfigurationPolicy_Info.png[link=self, window=blank, width=100%]
 
-NOTE: As the *NodeNetworkConfigurationPolicy* performs configurations at the node-level you cannot modify these options with your current user account. As a result, it prompts you to contact your administrator.
+NOTE: *NodeNetworkConfigurationPolicy*はノードレベルで設定を実行するため、現在のユーザーアカウントではこれらのオプションを変更することはできません。その結果、管理者に連絡するよう求められます。
 
-. To see how this bridge was created, you can switch to *YAML* to see the definition. As an administrator, you could create your a similar bridge with the yaml snippet below.:
+. このブリッジがどのように作成されたかを確認するには、*YAML*に切り替えて定義を確認できます。管理者として、次のyamlスニペットを使用して同様のブリッジを作成できます:
 +
 image::2025_spring/module-09-networking/05_NodeNetworkConfigurationPolicy_YAML.png[link=self, window=blank, width=100%]
 
@@ -67,20 +67,20 @@ spec:
 ////
 
 [[nad]]
-== Create Network Attachment Definition
+== ネットワークアタッチメント定義の作成
 
-In order to use the Linux Bridge with your VM you need to create a *Network Attachment Definition*. This is what tells OpenShift about the network and allows the virtual machines to connect to it. Network Attachment Definitions are project scoped, to the project that they are created in and are only accessible to the virtual machines that are deployed in that project. If a Network Attachment Definition is created in the *default* project, then it becomes available globally. This gives you, the administrator, the ability to control which networks are and aren't available to specific users who have access to manage their own VMs.
+VMでLinuxブリッジを使用するには、*ネットワークアタッチメント定義*を作成する必要があります。これはOpenShiftにネットワークについて通知し、仮想マシンがそれに接続できるようにします。ネットワークアタッチメント定義はプロジェクトスコープであり、それが作成されたプロジェクトに対してのみであり、そのプロジェクトに展開されている仮想マシンのみがアクセスできます。*default*プロジェクトでネットワークアタッチメント定義が作成された場合、それはグローバルに利用可能になります。これにより、管理者は、特定のユーザーが自分のVMを管理するためにアクセスできるや利用できないネットワークを制御できます。
 
-NOTE: A network attachment definition instructs Openshift to utilise an existing network device. In our case that device was previously created and is named *br-flat*. You must use that name or OpenShift won’t be able to place your VM on any compute nodes as it can only utilise nodes with that specifically named network device on it.
+NOTE: ネットワークアタッチメント定義は、既存のネットワークデバイスをOpenShiftが利用するように指示します。この場合のデバイスは以前に作成され、*br-flat*という名前です。その名前を使用する必要があります。そうしないと、OpenShiftがVMをコンピュートノードに配置できません。特別に名前が付けられたネットワークデバイスがあるノードのみを利用できるためです。
 
-. From the left-side menu, select *Network* followed by *Network Attachment Definitions* and click the *Create network attachment definition* button.
+. 左側のメニューから*Network*を選択し、次に*Network Attachment Definitions*を選択して、*Create network attachment definition*ボタンをクリックします。
 +
 image::2025_spring/module-09-networking/06_NetworkAttachDefinition_Create.png[link=self, window=blank, width=100%]
 +
 
-IMPORTANT: Ensure that you are in your vmexamples-{user} project when creating the network attachment definitions.
+IMPORTANT: ネットワークアタッチメント定義を作成するときは、vmexamples-{user}プロジェクトにいることを確認してください。
 
-. Complete the form for the *vmexamples-{user}* project as follows, then click *Create network attachment definition*:
+. *vmexamples-{user}*プロジェクトのフォームを次のように完成させて、*Create network attachment definition*をクリックします:
 * *Name*: flatnetwork
 * *Network Type*: Linux bridge
 * *Bridge Name*: br-flat
@@ -88,114 +88,114 @@ IMPORTANT: Ensure that you are in your vmexamples-{user} project when creating t
 image::2025_summer/module-09-networking/07_NetworkAttachDefinition_Create_Form.png[link=self, window=blank, width=100%]
 +
 
-NOTE: The form above has an input for *VLAN Tag Number*, which is used when connecting to a network that needs to have a VLAN tag assigned. This lab uses an untagged network, so no VLAN number is required here.
+NOTE: 上記のフォームには*VLAN Tag Number*の入力フィールドがあります。これは、VLANタグを割り当てる必要があるネットワークに接続する場合に使用されます。このラボではタグなしネットワークを使用しているため、ここではVLAN番号は必要ありません。
 +
-NOTE: A single Linux bridge on the host can have many different VLANs associated with it. In this scenario, you only need to create a Network Attachment Definition for each one, not a separate host interface and bridge.
+NOTE: ホスト上の単一のLinuxブリッジには、多くの異なるVLANを関連付けることができます。このシナリオでは、個別のホストインターフェースとブリッジではなく、それぞれに対してネットワークアタッチメント定義を作成するだけで済みます。
 
-. Examine the details of the network attachment definition. Because this was created in the *vmexamples-{user}* project, it will not be available in other projects.
+. ネットワークアタッチメント定義の詳細を確認します。これは*vmexamples-{user}*プロジェクトで作成されたため、他のプロジェクトでは利用できません。
 +
 image::2025_summer/module-09-networking/08_NetworkAttachDefinition_Created.png[link=self, window=blank, width=100%]
 
 [[attach]]
-== Attach Virtual Machine to Network
-. Navigate to *VirtualMachines* in the left-side menu and select the *fedora01* VM from the central column. Click *Configuration* tab and then click the *Network* left tab:
+== 仮想マシンをネットワークに接続
+. 左側のメニューの*VirtualMachines*に移動し、中央の列から*fedora01* VMを選択します。*Configuration*タブをクリックしてから、左側の*Network*タブをクリックします:
 +
 image::2025_spring/module-09-networking/09_VM_Network_Tab.png[link=self, window=blank, width=100%]
 
-. Click *Add Network Interface*, complete the form as shown, then click *Save*.
+. *Add Network Interface*をクリックしてフォームを完成させ、*Save*をクリックします。
 +
 image::2025_spring/module-09-networking/10_VM_Network_Attach.png[link=self, window=blank, width=100%]
 +
-NOTE: Because this is a bridge connecting to the external network, we don't need to rely on any OpenShift features or capabilities to enable access, such as masquerade (NAT) for the virtual machines using the network. As a result, *type* should be *Bridge* here.
+NOTE: これは外部ネットワークに接続するブリッジであるため、ネットワークを使用している仮想マシンのアクセスを有効にするために、マスカレード（NAT）などのOpenShift機能または能力に頼る必要はありません。その結果、ここで*type*は*Bridge*である必要があります。
 
-. Use the *Actions* menu or the *Play* button to start the VM, and switch to the *Console* tab to watch it boot up.
+. *Actions*メニューまたは*Play*ボタンを使用してVMを開始し、*Console*タブに切り替えてブートアップを監視します。
 +
 image::2025_spring/module-09-networking/11_VM_Network_Startup.png[]
 +
-The *enp2s0* interface obtains an IP address from the flat network (*192.168.64.0/18*). That network has a DHCP server providing IPs to that network.
+*enp2s0*インターフェースはフラットネットワーク（*192.168.64.0/18*）からIPアドレスを取得します。そのネットワークには、ネットワークにIPを提供するDHCPサーバーがあります。
 +
 image::2025_spring/module-09-networking/12_VM_Network_Console.png[link=self, window=blank, width=100%]
 
-. Repeat the actions to attach the fedora02 VM to the same *flatnetwork* network.
+. 同じ手順を繰り返して、fedora02 VMを同じ*flatnetwork*ネットワークに接続します。
 
-. Use the *ping* command in the console to demonstrate direct communication between your two VMs (fedora01 and fedora02).
+. コンソールで*ping*コマンドを使用して、2つのVM（fedora01とfedora02）間の直接通信を実証します。
 +
 image::2025_spring/module-09-networking/13_VM_Network_Ping.png[link=self, window=blank, width=100%]
 
 [[udn]]
-== User Defined Networks
+== ユーザー定義ネットワーク
 
-Before the implementation of user-defined networks (UDN), the OVN-Kubernetes CNI plugin for OpenShift Container Platform only supported a Layer 3 topology on the primary or main network. Due to Kubernetes design principles: all pods are attached to the main network, all pods communicate with each other by their IP addresses, and inter-pod traffic is restricted according to network policy. Learning a new network architecture is often an expressed point of concern from many traditional virtualization admins.
+ユーザー定義ネットワーク（UDN）の実装前、OpenShift Container Platform用のOVN-Kubernetes CNIプラグインはプライマリまたはメインネットワーク上のレイヤー3トポロジのみをサポートしていました。Kubernetesの設計原則に従って、すべてのポッドはメインネットワークに接続され、すべてのポッド通信はIPアドレスで行われ、ポッド間トラフィックはネットワークポリシーに従って制限されます。新しいネットワークアーキテクチャを学ぶことは、従来の仮想化管理者から多くの懸念点として表現されています。
 
-The introduction of UDN improves the flexibility and segmentation capabilities of the default Layer 3 topology for a Kubernetes pod network by enabling custom Layer 2, Layer 3, and localnet network segments, where all these segments are isolated by default. These segments act as either primary or secondary networks for container pods and virtual machines that use the default OVN-Kubernetes CNI plugin. UDNs enable a wide range of network architectures and topologies, enhancing network flexibility, security, and performance.
+UDNの導入により、カスタムレイヤー2、レイヤー3、およびローカルネットネットワークセグメントを有効にすることで、デフォルトレイヤー3トポロジの柔軟性とセグメンテーション機能が向上し、これらのセグメントはすべてデフォルトで分離されています。これらのセグメントは、デフォルトのOVN-Kubernetes CNIプラグインを使用するコンテナポッドと仮想マシンのプライマリまたはセカンダリネットワークとして機能します。UDNは幅広いネットワークアーキテクチャとトポロジを有効にし、ネットワークの柔軟性、セキュリティ、パフォーマンスを向上させます。
 
-A cluster administrator can use a UDN to create and define additional networks that span multiple namespaces at the cluster level by leveraging the ClusterUserDefinedNetwork custom resource (CR). Additionally, a cluster administrator or a cluster user can use a UDN to define additional networks at the namespace level with the UserDefinedNetwork CR.
+クラスタ管理者は、UDNを使用して、ClusterUserDefinedNetworkカスタムリソース（CR）を活用することで、複数の名前空間にまたがるクラスタレベルの追加ネットワークを作成および定義できます。さらに、クラスタ管理者またはクラスタユーザーは、UDNを使用して、UserDefinedNetwork CRを使用して名前空間レベルで追加ネットワークを定義できます。
 
-User-defined networks provide the following benefits:
+ユーザー定義ネットワークには、次の利点があります:
 
-*Enhanced network isolation for security* -  Namespaces can have their own isolated primary network, similar to how tenants are isolated in Red Hat OpenStack Platform (RHOSP). This improves security by reducing the risk of cross-tenant traffic.
+*セキュリティのための強化されたネットワーク分離* -  名前空間は、Red Hat OpenStack Platform（RHOSP）でテナントが分離されるのと同じように、独自の分離されたプライマリネットワークを持つことができます。これはクロステナントトラフィックのリスクを軽減することで、セキュリティを向上させます。
 
-*Network flexibility* - Cluster administrators can configure primary networks as layer 2 or layer 3 network types. This provides the flexibility of a secondary network to the primary network.
+*ネットワークの柔軟性* - クラスタ管理者は、プライマリネットワークをレイヤー2またはレイヤー3ネットワークタイプとして設定できます。これにより、プライマリネットワークへのセカンダリネットワークの柔軟性が提供されます。
 
-*Simplified network management* - With user-defined networks, the need for complex network policies are eliminated because isolation can be achieved by grouping workloads in different networks.
+*ネットワーク管理の簡素化* -  ユーザー定義ネットワークにより、分離は異なるネットワークにワークロードをグループ化することで実現できるため、複雑なネットワークポリシーの必要性が排除されます。
 
-*Advanced capabilities* - The user-defined networking feature allows administrators to connect multiple namespaces to a single network, or to create distinct networks for different sets of namespaces. Users can also specify and reuse IP subnets across different namespaces and clusters, providing a consistent networking environment.
+*高度な機能* - ユーザー定義ネットワーク機能により、管理者は複数の名前空間を単一ネットワークに接続したり、異なるセットの名前空間用に異なるネットワークを作成したりできます。ユーザーは、異なる名前空間とクラスタ間でIPサブネットを指定して再利用することもでき、一貫性のあるネットワーク環境を提供します。
 
 
-=== User Defined Networks with OpenShift Virtualization
+=== OpenShift仮想化でのユーザー定義ネットワーク
 
-You can connect a virtual machine (VM) to a user-defined network (UDN) on the VM's primary interface by using the OpenShift Container Platform web console or the CLI. The primary user-defined network replaces the default pod network in your specified namespace. Unlike the pod network, you can define the primary UDN per project, where each project can use its specific subnet and topology.
+OpenShift Container Platform Webコンソールまたはコマンドラインインターフェース（CLI）を使用して、仮想マシン（VM）をVMのプライマリインターフェース上のユーザー定義ネットワーク（UDN）に接続できます。プライマリユーザー定義ネットワークは、指定された名前空間内のデフォルトポッドネットワークを置き換えます。ポッドネットワークとは異なり、プロジェクトごとにプライマリUDNを定義でき、各プロジェクトは特定のサブネットとトポロジを使用できます。
 
-With the layer 2 topology, OVN-Kubernetes creates an overlay network between nodes. You can use this overlay network to connect VMs on different nodes without having to configure any additional physical networking infrastructure.
+レイヤー2トポロジでは、OVN-Kubernetesはノード間にオーバーレイネットワークを作成します。このオーバーレイネットワークを使用して、異なるノード上のVMに接続でき、物理ネットワークインフラストラクチャを追加で設定する必要はありません。
 
-The layer 2 topology enables seamless migration of VMs without the need for Network Address Translation (NAT) because persistent IP addresses are preserved across cluster nodes during live migration.
+レイヤー2トポロジにより、ライブマイグレーション中にクラスタノード全体で永続的なIPアドレスが保持されるため、ネットワークアドレス変換（NAT）の必要なしにVMをシームレスに移行できます。
 
-You must consider the following limitations before implementing a primary UDN:
+プライマリUDNを実装する前に、次の制限事項を考慮する必要があります:
 
-. You cannot use the virtctl ssh command to configure SSH access to a VM.
+. virtctl sshコマンドを使用してVMへのSSHアクセスを設定することはできません。
 
-. You cannot use the oc port-forward command to forward ports to a VM.
+. oコマンドport-forwardコマンドを使用してVMにポートを転送することはできません。
 
-. You cannot use headless services to access a VM.
+. ヘッドレスサービスを使用してVMにアクセスすることはできません。
 
-. You cannot define readiness and liveness probes to configure VM health checks.
+. 準備状態プローブとライブネスプローブを定義してVM健全性チェックを設定することはできません。
 
-NOTE: OpenShift Virtualization currently does not support secondary user-defined networks.
+NOTE: OpenShift仮想化は現在、セカンダリユーザー定義ネットワークをサポートしていません。
 
-=== Working with User Defined Networks
+=== ユーザー定義ネットワークの操作
 
-You must create the namespace and network before creating pods that can access the UDN. Assigning a namespace with pods to a new network or creating a UDN in an existing namespace will not be accepted by OVN-Kubernetes.
+UDNにアクセスできるポッドを作成する前に、名前空間とネットワークを作成する必要があります。新しいネットワークにポッドを持つ名前空間を割り当てるか、既存の名前空間にUDNを作成すると、OVN-Kubernetesによって受け入れられません。
 
-This task has to be performed by a cluster administrator. You have assigned a namespace called *vmexamples-{user}-udn* with the proper label (*k8s.ovn.org/primary-user-defined-network*)
+このタスクはクラスタ管理者が実行する必要があります。適切なラベル（*k8s.ovn.org/primary-user-defined-network*）を含む*vmexamples-{user}-udn*という名前空間を割り当てました。
 
-. Navigate to *Networking* and then click on *UserDefinedNetworks* and ensure you select the project *vmexamples-{user}-udn*
+. *Networking*に移動し、*UserDefinedNetworks*をクリックして、プロジェクト*vmexamples-{user}-udn*を選択していることを確認します。
 +
 image::2025_spring/module-09-networking/14_UDN_List.png[link=self, window=blank, width=100%]
 
-. Click on *Create* and selet *UserDefinedNetwork*
+. *Create*をクリックして*UserDefinedNetwork*を選択します
 +
 image::2025_spring/module-09-networking/15_UDN_Create.png[link=self, window=blank, width=100%]
 
-. Specify the subnet *192.168.254.0/24* and press *Create*
+. サブネット*192.168.254.0/24*を指定して*Create*を押します
 +
 image::2025_spring/module-09-networking/16_UDN_Form.png[link=self, window=blank, width=100%]
 
-. Review the configuration of the UDN just created
+. 作成されたばかりのUDNの設定を確認します
 +
 image::2025_spring/module-09-networking/17_UDN_Created.png[link=self, window=blank, width=100%]
 +
-* The Default name when it is created using the form is *primary-udn*.
-* By default is Layer 2 (the only Layer supported at this moment for OpenShift Virtualization).
-* The Role is primary (Virtual Machines can only use, at this moment, primary networks).
-* A Network Attachment Definition is created automatically.
+* フォームを使用して作成される場合、デフォルト名は*primary-udn*です。
+* デフォルトはレイヤー2です（OpenShift仮想化で現在サポートされている唯一のレイヤー）。
+* ロールはプライマリです（仮想マシンは現在のところプライマリネットワークのみを使用できます）。
+* ネットワークアタッチメント定義が自動的に作成されます。
 
-. Now navigate to *NetworkAttachmentDefinitions* on the left-side menu and see that the associated NAD has been automatically created.
+. 左側のメニューから*NetworkAttachmentDefinitions*に移動してから、関連するNADが自動的に作成されたことを確認します。
 +
 image::2025_spring/module-09-networking/18_UDN_NAD.png[link=self, window=blank, width=100%]
 
-. Creating a Virtual Machine attached to a UserDefinedNetwork requires some https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/virtualization/networking#virt-connecting-vm-to-primary-udn[adjustment in the YAML definition^]. For this lab to make the task easier, we are just going to define the whole VM connected to the UserDefinedNetwork using the YAML definition below:
+. UserDefinedNetworkに接続された仮想マシンを作成するには、YAML定義のいくつかの https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/virtualization/networking#virt-connecting-vm-to-primary-udn[調整が必要です^]。このラボで作業を簡単にするために、次のYAML定義を使用してUserDefinedNetworkに接続された全体のVMを定義するだけです:
 
-. You can use the top menu to import a YAML as is shown in the following image:
+. 次の画像に示すように、トップメニューを使用してYAMLをインポートできます:
 +
 image::2025_spring/module-09-networking/19_UDN_Import_YAML.png[link=self, window=blank, width=100%]
 +
@@ -264,26 +264,27 @@ spec:
         name: cloudinitdisk
 ----
 
-. Once pasted in, you can click the blue *Create* button at the bottom to begin the VM creation process.
+. 貼り付けた後、下部の青色の*Create*ボタンをクリックしてVM作成プロセスを開始できます。
 +
 image::2025_spring/module-09-networking/20_Create_VM_YAML.png[link=self, window=blank, width=100%]
 
-. Switch to the *VirtualMachines* and watch at the VM is created. Once it is up and runing, review the newly created *fedora-udn* virtual machine. In the *Overview* tab, the *Network* tile will show the IP assigned from the UserDefinedNetwork.
+. *VirtualMachines*に切り替えて、VMが作成されるのを監視します。起動して実行されたら、新しく作成された*fedora-udn*仮想マシンを確認します。*Overview*タブの*Network*タイルには、UserDefinedNetworkから割り当てられたIPが表示されます。
 +
 image::2025_spring/module-09-networking/21_UDN_Network_Tile.png[link=self, window=blank, width=100%]
 
-. Switch to the Console tab and login to the VM using the provided guest credentials.
+. [Console]タブに切り替えて、提供されたゲスト認証情報を使用してVMにログインします。
 +
 image::2025_spring/module-09-networking/22_UDN_Fedora_Console.png[link=self, window=blank, width=100%]
 +
-.. The VM has assigned a IP from the subnet defined
-.. The VM automatically gets the gateway configuration from a DHCP
-.. The VM has access to internet using the User Defined Network.
+.. VMは定義されたサブネットからIPが割り当てられます
+.. VMはDHCPからゲートウェイ設定を自動的に取得します
+.. VMはユーザー定義ネットワークを使用してインターネットにアクセスできます。
 
 
 
-== Summary
+== まとめ
 
-In this module, you explored working with physical networks and connecting Virtual Machines (VMs) directly to an existing network. By attaching VMs directly to a physical network, administrators can directly access the VMs while also enabling the VMs to connect to specialized networks, such as storage or administration networks.
+このモジュールでは、物理ネットワークを操作し、仮想マシン（VM）を既存ネットワークに直結接続することを確認しました。VMを物理ネットワークに直列に接続することで、管理者はVMに直接アクセスでき、同時にVMをストレージや管理ネットワークなどの特別なネットワークに接続できます。
 
-User-defined networks provide cluster administrators and end users with highly customizable network configuration options and a much more flexible experience for managing both primary and secondary network types.
+ユーザー定義ネットワークは、クラスタ管理者とエンドユーザーに高度にカスタマイズ可能なネットワーク設定オプションと、プライマリとセカンダリネットワークタイプの両方を管理する方がはるかに柔軟な経験を提供します。
+

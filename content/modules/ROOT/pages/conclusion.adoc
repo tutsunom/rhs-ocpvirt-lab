@@ -1,47 +1,26 @@
-
-image::2025_spring/conclusion/00_Thank_You.png[link=self, window=blank, width=100%]
-
-By completing this lab, you’ve seen how OpenShift Virtualization on Azure Red Hat OpenShift (ARO) brings VMs onto a Kubernetes-based platform and sets a clear path from migration to modernization.
-You created and migrated VMs with the Migration Toolkit for Virtualization (including advanced options and hooks), explored storage fundamentals with PVCs, snapshots, clones, and performed VM-aware backup and restore with OADP.
-You also accelerated repeatable provisioning using Templates and InstanceTypes, then executed Day-2 operations by exposing VM-hosted apps through Services and Routes—showing how VM workloads can participate in the same cloud-native workflows as containers.
-
-We hope you have enjoyed {lab_name} and learning more about *OpenShift Virtualization* and how it can be a useful tool for both the import and management of legacy virtual machines, as well as a stepping stone on the path of application modernization.
-
-[key_takeaways]
-== Key Takeaways
-
-* OpenShift Virtualization is solution oriented, providing you with a mature, stable, and scalable solution that's easy to get started with.
-
-* OpenShift Virtualization is available at every subscription level of Red Hat OpenShift from OpenShift Platform Plus which provides a full hybrid cloud application development platform, to OpenShift Virtualization Engine, an offering that specializes in providing support for virtualized workloads.
-
-* OpenShift Virtualization is fully integrated with a broad ecosystem of partner products, with more coming on board each day. Check with your preferred hardware and software vendors to see if they support OpenShift Virtualization.
-
-* OpenShift Virtualization can help you set a strong foundation for tradtional workloads, while building skills for the future with a modern application platform.
-
-
 [additional_info]
-== Additonal Information
+== 追加情報
 
-=== Free Ebook: 15 Reasons to Adopt Red Hat OpenShift Virtualization
+*無料電子書籍：Red Hat OpenShift Virtualization を採用する 15 の理由*
 
-* Discover how virtualization infrastruture continues to evolve.
-* Explore options for migration of your existing virtual machines.
-* Take advantage of a large number of benefits across your organization.
-* Learn about deploying a consistent foundation for innovation.
-* Learn how to get started through no cost demonstrations or a Virtual Migration Assessment.
+* 仮想化インフラストラクチャの進化を発見してください。
+* 既存の仮想マシンの移行オプションを検討してください。
+* 組織全体にわたる多くのメリットを活用してください。
+* 一貫した革新の基盤を展開する方法を学んでください。
+* 無料デモまたは仮想移行評価を通じて始める方法を学んでください。
 
-Click the link https://www.redhat.com/en/resources/15-reasons-adopt-openshift-virtualization-ebook[here^] or scan the QR code below to learn more:
+詳細については、https://www.redhat.com/en/resources/15-reasons-adopt-openshift-virtualization-ebook[こちら^]のリンクをクリックするか、下記のQRコードをスキャンしてください：
 
 image::2025_spring/conclusion/01_Ebook.png[link=self, window=blank, width=50%]
 
-=== Virtualization Migration Assessment
+*仮想化移行評価*
 
-* A two-week onsite interactive workshop and follow-up report.
-* Experienced Red Hat architects run a short series of onsite workshops to help develop your migration journey.
-* They provide an extensive review of your virtualization environment and its current integrations including: networking, storage, security, backup, and disaster recovery.
-* You recieve a VMA report with a tailored proposal for your complete migration incluing high-level recommendations and design considerations.
-* This can help with understanding of where you're going, how you'll get there, how long it will take, and how much it will cost.
+* 2週間のオンサイト対話型ワークショップとフォローアップレポート。
+* Red Hatの経験豊富なアーキテクトがオンサイトワークショップを実施し、移行ジャーニーの開発を支援します。
+* ネットワーク、ストレージ、セキュリティ、バックアップ、ディザスタリカバリーを含む、仮想化環境とその現在の統合の広範なレビューを提供します。
+* VMAレポートには、高レベルの推奨事項と設計上の考慮事項を含む、完全な移行のための調整されたプロポーザルが含まれます。
+* これは、どこに向かうのか、どのようにそこに到達するのか、どのくらい時間がかかるのか、またどのくらいのコストがかかるのかを理解するのに役立ちます。
 
-Click the link https://www.redhat.com/en/resources/virtualization-migration-assessment-datasheet[here^] or scan the QR code below to learn more:
+詳細については、https://www.redhat.com/en/resources/virtualization-migration-assessment-datasheet[こちら^]のリンクをクリックするか、下記のQRコードをスキャンしてください：
 
 image::2025_spring/conclusion/03_VMA_QR.png[link=self, window=blank, width=50%]
