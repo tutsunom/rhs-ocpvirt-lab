@@ -1,61 +1,60 @@
-=  仮想マシンとアプリケーションの操作
+= 仮想マシンとアプリケーションの操作
 
 == はじめに
 
-このラボのこのセクションは、OpenShift Virtualization環境で仮想マシンを操作する際に多くの管理者が実行する必要があるDay-2運用に専念しています。このロードショー全体を通じて開発したVM がOpenShift環境でどのように動作するかについての理解を活かし、このセクションのタスクを完了するためにそれらのスキルを使用します。特に、このロードショーの前半でVMware vSphereからインポートした3つの仮想マシンを操作する予定です。また、OpenShift Virtualization上で実行されるようになった、それらのサーバーでホストされているアプリケーションにアクセスできるようにするために、いくつかのマイナー設定変更を行います。これを実現するために、OpenShift SDNポッドネットワーク使用時のデフォルト方法であるサービス/ルート方法を使用してアプリケーションを公開し、クラスター外からアプリケーションに到達可能にします。これにより、VM上にあるアプリケーションを直接公開することで、より最新のアプローチで仮想マシン管理を提供します。
+このセクションでは、OpenShift Virtualization 環境における仮想マシンの「Day-2 運用（構築後の運用管理）」に焦点を当てます。これまでのラボで培った知識を活かし、特に VMware vSphere からインポートした 3 つの仮想マシンを操作して、ホストされているアプリケーションへのアクセス設定を行います。
+
+具体的には、OpenShift の標準的なネットワーク公開手法である「Service」と「Route」を使用してアプリケーションを公開し、外部からアクセス可能にします。これにより、仮想マシン上のアプリケーションをコンテナネイティブな最新のアプローチで管理・提供する方法を学びます。
 
 [[service_route]]
-== サービス/ルートでアプリケーションを公開
+== Service と Route によるアプリケーションの公開
 
-デフォルトでは、仮想マシンはSDNに接続されており、これはそれらにネットワークの残りの部分へのアクセスを提供する便利で簡単な方法です。ただし、仮想マシンとOpenShiftクラスター内の他のポッドが仮想化されたアプリケーションを検出および接続することは困難な場合があります。これを解決するために、*Service*を使用して2つのWindowsベースのWebサーバー間の接続をロードバランシングし、各サービスディスカバリーのためのDNSエントリを作成してから、*Route*を作成して外部クライアントに仮想マシン内でホストされているアプリケーションへのアクセスを許可します。
+デフォルトで仮想マシンは SDN（ポッドネットワーク）に接続されており、他のネットワークリソースへ簡単にアクセスできます。しかし、クラスター内の他のポッドや外部クライアントが、特定の仮想マシンを自動的に検出して接続するのは難しい場合があります。
 
-IMPORTANT: *既存の仮想マシンの移行*モジュールを完了していない場合は、そのモジュールを最初に実行することをお勧めします。完了していない場合、または移行プロセスがまだ進行中の場合は、*vmimported-{user}*プロジェクトで利用可能な、あらかじめ準備されている既存の仮想マシンを使用できます。これらの事前インポートされた仮想マシンを使用している場合は、以下の例で*vmexamples-{user}*名前空間のすべてのインスタンスを*vmimported-{user}*に置き換えてください。
+これを解決するために、*Service* を使用して 2 台の Windows Web サーバー間でトラフィックをロードバランシングし、DNS によるサービスディスカバリを有効にします。さらに、*Route* を作成して、クラスター外部のクライアントから仮想マシン内のアプリケーションへアクセスできるようにします。
+
+IMPORTANT: 「既存の仮想マシンの移行」モジュールを完了していない場合は、先にそちらを実行することを強く推奨します。移行が未完了、または進行中の場合は、*vmimported-{user}* プロジェクトにあらかじめ用意されている VM を使用できます。その場合は、以下の手順内の *vmexamples-{user}* を *vmimported-{user}* に読み替えて進めてください。
 
 === サービスの概要
 
-*Service*はトラフィックのソース/ターゲットを識別し、ラベルに基づいてエンドポイントにクライアントをルーティングします。現在、VMにはまだラベルが割り当てられていません。
+*Service* は、ラベルに基づいて接続先（エンドポイント）を識別し、クライアントからのトラフィックを適切にルーティングします。現在の VM にはまだ識別用のラベルが付与されていないため、以下の手順で設定を行います。
 
-サービスとVMを正常に関連付けるために、次のことを行う必要があります：
+* VM に共通のラベルを追加します（2 台の Windows IIS サーバーを同じロードバランサーに紐付けるため）。
+* Service を作成します。OpenShift は Service 名を DNS 名として登録し、クラスター内部からロードバランサーとしてアクセス可能にします。
+* *Route* を作成し、OpenShift の外部からこの Service を利用可能にします。
 
-* VMにラベルを追加します。両方のWindows IISサーバーは同じロードバランサーの背後にあるため、両方に同じラベルを使用します。
-* 2つのWindows IISサーバーをクラスター上の他のワークロードで利用可能にするためのサービスを作成します。OpenShiftはサービスの名前をDNS名として使用して、ロードバランサーを内部的にアクセス可能にします。
-* *Route*を作成してOpenShift外に対してサービスを利用可能にします。
+=== 仮想マシンへのラベル付与
 
-開始するには、OpenShift Virtualization GUIでそれらの定義を変更することで、仮想マシンにラベルを追加します。
-
-
-=== 仮想マシンにラベルを付与
-
-. 左側の列の*VirtualMachines*をクリックし、3つのインポートされた仮想マシンがまだ実行されていない場合は*開始*します。右側のツリービューの*Status*列でソートすることで、これを簡単に確認できます。
+. 左メニューの *VirtualMachines* をクリックします。インポートした 3 つの VM が停止している場合は、*Start（開始）* をクリックして起動してください。右側の *Status* 列でソートすると確認がスムーズです。
 +
-image::2025_spring/module-08-workingvms/11_Imported_VMs_List.png[link=self, window=blank, width=100%]
+image::2025_spring/module-08-workingvms/11_Import_VMs_List.png[link=self, window=blank, width=100%]
 +
-NOTE: 正しいプロジェクトを選択していることを確認してください。*既存の仮想マシンの移行*モジュールを完了した場合は*vmexamples-{user}*、完了していない場合は*vmimported-{user}*です。
+NOTE: 作業中のプロジェクト（*vmexamples-{user}* または *vmimported-{user}*）が正しく選択されているか確認してください。
 
-. *winweb01-{user}* VMを選択し、*YAML*タブに移動します。
-. *spec:*セクションを見つけ、*template.metadata*の下にある*labels*セクションに以下を追加します：
+. *winweb01-{user}* を選択し、*YAML* タブに移動します。
+. `spec:` セクション内の `template.metadata.labels` セクションに以下のラベルを追加します。
 +
 [source,yaml,role=execute]
 ----
 env: webapp
 ----
 +
-IMPORTANT: インデントが正確に一致していることを確認してください。下のスクリーンショットと同じです。
+IMPORTANT: インデント（字下げ）がずれないよう、以下のスクリーンショットを参考に正確に入力してください。
 +
 image::2025_spring/module-08-workingvms/12_Imported_VMs_YAML.png[link=self, window=blank, width=100%]
 
-. VM *winweb02-{user}*に対しても同じプロセスを*繰り返します*。
-. 設定変更後、*winweb01-{user}*と*winweb02-{user}*の両方の仮想マシンを再起動していることを確認します。
+. *winweb02-{user}* に対しても、同様のラベル追加を**繰り返します**。
+. ラベル設定後、*winweb01-{user}* と *winweb02-{user}* の両方の VM を再起動してください。
 +
-NOTE: 各VMのコンソールタブにアクセスして、VMが正常に機能していることを確認してください。
+NOTE: 再起動後、*Console* タブから VM が正常に起動していることを確認してください。
 
 === サービスの作成
 
-. 左側のメニューで*Networking*を展開し、*Services*をクリックします。ページが読み込まれたら、コーナーにある*Create Service*ボタンをクリックします。
+. 左メニューの *Networking* を展開し、*Services* をクリックします。画面右上の *Create Service* ボタンをクリックします。
 +
 image::2025_spring/module-08-workingvms/13_Navigate_Service.png[link=self, window=blank, width=100%]
 
-. YAMLを以下の定義に置き換えます
+. 表示された YAML テンプレートを、以下の定義に置き換えます。
 +
 [source,yaml,role=execute,subs="attributes"]
 ----
@@ -73,49 +72,48 @@ spec:
     targetPort: 80
 ----
 +
-IMPORTANT: 仮想マシンのある*namespace*（*vmexamples-{user}*または*vmimported-{user}*）がService YAMLで使用されていることを確認してください。
+IMPORTANT: `namespace` の値が、実際に VM が存在するプロジェクト名（*vmexamples-{user}* または *vmimported-{user}*）と一致していることを必ず確認してください。
 +
 image::2025_spring/module-08-workingvms/14_Service_YAML.png[link=self, window=blank, width=100%]
 
-. 下部の*Create*ボタンをクリックします。YAMLが保存されたというタスク通知を受け取ります。
-. 新しく作成された*webapp* Service の詳細ページから、*Pod selector*リンクを見つけてクリックします。
+. 画面下部の *Create* をクリックします。保存完了の通知が表示されます。
+. 作成した *webapp* サービスの詳細ページで、*Pod selector* のリンクをクリックします。
 +
 image::2025_spring/module-08-workingvms/15_Imported_VMs_PodSelector.png[link=self, window=blank, width=100%]
 
-. 2つのWindows VMが適切に識別され、サービスによってターゲットされていることを確認します。
+. 2 台の Windows VM が、サービスによって正しく識別・ターゲットされていることを確認します。
 +
 image::2025_spring/module-08-workingvms/16_Imported_VMs_Pods.png[link=self, window=blank, width=100%]
 
 === ルートの作成
 
-これで、Windows IISサーバーはOpenShiftクラスター内からアクセス可能になります。他の仮想マシンは、サービスの名前+名前空間で決定される**webapp.vmexamples-{user}**というDNS名を使用してそれらにアクセスできます。ただし、これらのWebサーバーはアプリケーションのフロントエンドであるため、外部からアクセス可能にしたいと考えています。これは*Route*を使用して公開することで行われます。
+これで、Windows IIS サーバーは OpenShift クラスター内部からアクセス可能になりました（DNS 名: `webapp.vmexamples-{user}.svc.cluster.local`）。次に、これをアプリケーションのフロントエンドとして外部へ公開するために *Route* を作成します。
 
-. 左側のナビゲーションメニューの*Networking*の下で、*Routes*オプションをクリックします。画面の中央にある*Create Route*ボタンをクリックします。
+. 左メニューの *Networking* > *Routes* をクリックし、*Create Route* をクリックします。
 +
 image::2025_spring/module-08-workingvms/17_Route_Navigation.png[link=self, window=blank, width=100%]
 
-. 以下の情報を使用してフォームに記入し、下部までスクロールして、完了したら*Create*をクリックします。
-+
+. 以下の情報を入力し、最下部の *Create* をクリックします。
 .. *Name*: *route-webapp*
 .. *Service*: *webapp*
 .. *Target port*: *80 -> 80 (TCP)*
-.. *Secure Route*: *Enabled*
+.. *Secure Route*: チェックを入れる（Enabled）
 .. *TLS termination*: *Edge*
 .. *Insecure traffic*: *Redirect*
 +
 image::2025_spring/module-08-workingvms/18_Create_Route.png[link=self, window=blank, width=100%]
 
-. *Location*フィールドに表示されているアドレスに移動します
+. 作成後、詳細画面の *Location* フィールドに表示されている URL にアクセスします。
 +
 image::2025_spring/module-08-workingvms/19_Route_Access.png[link=self, window=blank, width=100%]
 
-. ページが読み込まれるとエラーが表示されます。何かが間違っています。これは、WindowsのWebサーバーが移行後、データベースVMに接続できないためです。
+. おそらく、ページを開くとエラーが表示されるはずです。これは、移行した Web サーバーがデータベース VM と通信できていないことが原因です。
 +
 image::2025_spring/module-08-workingvms/20_WebApp_Error.png[link=self, window=blank, width=100%]
 +
-NOTE: 接続の問題に対処するには、データベースVMのサービスを作成して、Webサーバーからアクセスできるようにする必要があります。
+NOTE: この問題を解決するには、データベース VM 用の Service も作成し、Web サーバーから DNS 名で名前解決できるようにする必要があります。
 
-. もう一度、*Networking* -> *Services*に移動して*Create Service*を押します。YAMLを以下の定義に置き換えます：
+. 再度、*Networking* > *Services* > *Create Service* を開き、YAML を以下に置き換えて作成します。
 +
 [source,yaml,role=execute,subs="attributes"]
 ----
@@ -133,16 +131,13 @@ spec:
     targetPort: 3306
 ----
 +
-image::2025_spring/module-08-workingvms/21_Database_YAML.png[link=self, window=blank, width=100%]
-+
-IMPORTANT: 仮想マシンのある名前空間（*vmexamples-{user}*または*vmimported-{user}*）がService YAMLで使用されていることを確認してください。
-+
-. YAMLが貼り付けられたら、*Create*ボタンをクリックします。
-. ブラウザーでwebapp URLをリロードして、移行されたWebアプリケーションが正常に動作している結果を期待します。
+IMPORTANT: `namespace` が正しいことを確認してください。
+
+. *Create* ボタンをクリックして保存します。
+. ブラウザに戻り、先ほどの URL（webapp）をリロードしてください。移行した Web アプリケーションが正常にデータベースと接続され、画面が表示されるはずです。
 +
 image::2025_spring/module-08-workingvms/22_WebApp_Success.png[link=self, window=blank, width=100%]
 
 == まとめ
 
-このモジュールでは、VMware vSphereからOpenShift Virtualization環境に移行した仮想マシンを操作し、Red Hat OpenShiftのネイティブサービスとルート機能を使用して、より最新のアプローチでクラスター外からアクセス可能にしました。
-
+このモジュールでは、移行した仮想マシンに対して OpenShift ネイティブの Service と Route 機能を適用しました。これにより、仮想化環境においてもコンテナと同様の最新のアプローチでネットワーク公開とロードバランシングを実現できることを学びました。

@@ -1,15 +1,15 @@
-=  仮想マシンのバックアップとリカバリ
+= 仮想マシンのバックアップとリカバリ
 
 == はじめに
 
-データ保護は、エンタープライズワークロードに関する会話の際に主要なトピックであり、OpenShift仮想化を使用した仮想マシンのバックアップとリカバリのためのオプションは豊富です。これらのソリューションの多くは、OpenShiftのポッドを保護する方法と同じ方法で機能します。これは、仮想マシンまたは複数の仮想マシンを含むネームスペースのバックアップを取得し、リモートのオブジェクトストレージバケットに保存することで実現されます。これらのバックアップには通常、仮想マシンを定義するメタデータとカスタムリソースと共に、永続ストレージボリュームも含まれます。
+エンタープライズワークロードにおいてデータ保護は極めて重要なトピックであり、OpenShift Virtualization を使用した VM のバックアップとリカバリには豊富なオプションが用意されています。これらのソリューションの多くは、OpenShift の Pod を保護する手法と同様に機能します。具体的には、VM 単体、あるいは複数の VM を含むプロジェクト（ネームスペース）全体のバックアップを取得し、リモートのオブジェクトストレージバケットへ保存します。バックアップには、VM の定義（メタデータやカスタムリソース）とともに、永続ストレージボリューム（PV）のデータも含まれます。
 
-Red Hatソリューション：
+Red Hat の提供ソリューション：
 
-* https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/backup_and_restore/oadp-application-backup-and-restore[*OpenShift APIs for Data Protection (OADP)*^]：OpenShiftオブジェクト（仮想マシンを含む）のバックアップとリストアするためのストレージに依存しないメソッドを提供するRed Hatオペレーター。
-* https://docs.redhat.com/en/documentation/red_hat_openshift_data_foundation/4.18/html/configuring_openshift_data_foundation_disaster_recovery_for_openshift_workloads/metro-dr-solution[*OpenShift Data Foundation Metro-DR*^]および https://docs.redhat.com/en/documentation/red_hat_openshift_data_foundation/4.18/html/configuring_openshift_data_foundation_disaster_recovery_for_openshift_workloads/rdr-solution[*OpenShift Data Foundation Regional-DR*^]
+* https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/backup_and_restore/oadp-application-backup-and-restore[*OpenShift APIs for Data Protection (OADP)*^]：OpenShift オブジェクト（VM を含む）のバックアップとリストアのための、ストレージに依存しない標準的な手法を提供する Red Hat オペレーターです。
+* https://docs.redhat.com/en/documentation/red_hat_openshift_data_foundation/4.18/html/configuring_openshift_data_foundation_disaster_recovery_for_openshift_workloads/metro-dr-solution[*OpenShift Data Foundation Metro-DR*^] および https://docs.redhat.com/en/documentation/red_hat_openshift_data_foundation/4.18/html/configuring_openshift_data_foundation_disaster_recovery_for_openshift_workloads/rdr-solution[*OpenShift Data Foundation Regional-DR*^]
 
-エコシステムパートナーソリューション：
+エコシステムパートナーのソリューション：
 
 * https://www.cohesity.com/press/cohesity-enhances-data-protection-and-cyber-resilience-for-red-hat-openshift-virtualization-workloads/[*Cohesity DataProtect*^]
 * https://docs.netapp.com/us-en/trident/index.html[*NetApp Trident Protect*^]
@@ -19,49 +19,49 @@ Red Hatソリューション：
 * https://docs.trilio.io/kubernetes/appendix/backup-and-restore-virtual-machine-running-on-openshift-virtualization[*Trilio for Kubernetes*^]
 * https://docs.kasten.io/latest/usage/openshift_virtualization.html[*VEEAM Kasten*^]
 
-NOTE: これは、バックアップとリカバリソリューションを提供しているパートナーの完全なリストを意図したものではありません。OpenShift仮想化との製品の互換性を判断するために、ストレージまたはデータ保護ベンダーに確認するか、https://catalog.redhat.com/platform/red-hat-openshift/virtualization#virtualization-infrastructure[Red Hat EcoSystem Catalog^]で追加情報を確認してください。
+NOTE: このリストはすべてを網羅しているわけではありません。OpenShift Virtualization との互換性については、各ストレージまたはデータ保護ベンダーに確認するか、https://catalog.redhat.com/platform/red-hat-openshift/virtualization#virtualization-infrastructure[Red Hat EcoSystem Catalog^] を参照してください。
 
-このラボのこのセクションでは、OADPを使用して仮想マシンのバックアップとリストア操作を実行します。
+このラボでは、OADP を使用して仮想マシンのバックアップとリストア操作を実行します。
 
 [[review_operator]]
-== OADPオペレーターの確認
+== OADP オペレーターの確認
 
-. 管理者パースペクティブに再度移動し、左側のメニューで*Operators*をクリックしてから*Installed Operators*をクリックします。プロジェクト*oadp-{user}*が選択されていることを確認します。
+. パースペクティブを *管理者 (Administrator)* に切り替え、左メニューの *Operators* -> *Installed Operators* を選択します。プロジェクト（ネームスペース）が *oadp-{user}* になっていることを確認してください。
 +
 image::2025_summer/module-05-bcdr/00_Left_Menu.png[link=self, window=blank, width=100%]
 
-. オペレーターをクリックして、その詳細を表示します。
+. 一覧から OADP オペレーターをクリックして詳細を表示します。
 
-. 利用可能な*Provided APIs*を確認します。このモジュールでは、*Backup*および*Restore*機能を使用します。
+. 利用可能な *Provided APIs* を確認します。このモジュールでは、*Backup*（バックアップ）と *Restore*（リストア）機能を使用します。
 +
 image::2025_summer/module-05-bcdr/01_Overview.png[link=self, window=blank, width=100%]
 
-. 上部の水平スクロールバーを使用して、*DataProtectionApplication*タブに移動します。このオブジェクトは、デプロイされたOADPインスタンスの構成を表します。
+. 上部のタブバーから *DataProtectionApplication* タブを選択します。このオブジェクトは、デプロイされた OADP インスタンスの構成を定義しています。
 +
 image::2025_summer/module-05-bcdr/02_DPA.png[link=self, window=blank, width=100%]
 
-. *oadp-dpa*をクリックして_DataProtectionApplication_の詳細を表示してから、上部の*YAML*ボタンをクリックして、その構成方法を確認します。
+. *oadp-dpa* をクリックして詳細画面を開き、上部の *YAML* タブで構成内容を確認します。
 +
 image::2025_spring/module-05-bcdr/03_OADP_YAML.png[link=self, window=blank, width=100%]
 +
-*OADP*が*kubevirt*プラグインを追加することで構成されており、クラスター上で実行されているOpenShift Data Foundationsによって提供される内部オブジェクトストレージバケットを使用するように構成されていることに注意してください。
+構成内で `kubevirt` プラグインが有効化されており、OpenShift Data Foundation (ODF) が提供する内部オブジェクトストレージバケットを保存先として使用するように設定されている点に注目してください。
 +
-IMPORTANT: 便宜上、このラボはローカルオブジェクトバケットへのバックアップを実行するように設定されていますが、本番環境では、ローカルな災害からワークロードを保護するために、バックアップを外部ストレージシステムまたはクラウドベースのオブジェクトストレージバケットに向けるようにしてください。
+IMPORTANT: ラボの便宜上、バックアップ先にはローカルのオブジェクトバケットを使用していますが、本番環境では災害対策として、外部のストレージシステムやクラウドベースのオブジェクトストレージを選択することを推奨します。
 
 [[create_backup]]
-== 仮想マシンのバックアップを作成する
+== 仮想マシンのバックアップ作成
 
-ここで、前のセクションで作成したVM*fedora02*のバックアップを実行します。バックアップするオブジェクトの選択は、ラベル*app*および*vm.kubevirt.io/name*によって定義されます。これには、VM定義、ディスク、および仮想マシンで使用されているコンフィグマップやシークレットなどの追加オブジェクトが含まれます。
+前のセクションで作成した VM *fedora02* のバックアップを実行します。バックアップ対象はラベル `app` および `vm.kubevirt.io/name` によって識別されます。これには VM 本体の定義、ディスク、および ConfigMap や Secret などの関連オブジェクトがすべて含まれます。
 
-NOTE: 前のセクションを完了していない場合、または*fedora02* VMを持っていない場合は、上記のYAMLのラベルセレクターを変更して、ご使用のインベントリ内の仮想マシンと一致させてください。
+NOTE: 前のセクションを完了していない、または *fedora02* が存在しない場合は、以下の YAML 内のラベルセレクターを実際の VM と一致するように適宜変更してください。
 
-. *オペレーター詳細*に戻り、水平スクロールバーを使用して*Backup*タブが表示されるまでスクロールします。
+. オペレーターの詳細画面に戻り、上部タブから *Backup* を選択します。
 
-. *Backup*タブをクリックして、*Create Backup*ボタンを押します。
+. *Create Backup* ボタンをクリックします。
 +
 image::2025_summer/module-05-bcdr/04_Backup_Tab.png[link=self, window=blank, width=100%]
 
-. _YAML view_に切り替えて、デフォルトコンテンツを以下の内容に置き換えます：
+. *YAML view* に切り替え、既存の内容を以下の定義に置き換えます：
 +
 [source,yaml,role=execute,subs="attributes"]
 ----
@@ -90,42 +90,42 @@ spec:
   snapshotMoveData: false
 ----
 
-. 下部の*Create*ボタンをクリックします。
+. 下部の *Create* ボタンをクリックします。
 +
-このYAMLの内容は、ネームスペース*vmexamples-{user}*内のラベル*app: fedora02*を持つオブジェクトが、*DataProtectionApplication*構成で指定された場所にバックアップされることを示しています。
+この YAML は、プロジェクト `vmexamples-{user}` 内のラベル `app: fedora02` を持つ全オブジェクトを、事前定義されたストレージへバックアップすることを定義しています。
 +
 image::2025_spring/module-05-bcdr/05_Create_Backup_YAML.png[link=self, window=blank, width=100%]
 
-. *Status*列が*Completed*に変わるまで待ちます。これは、仮想マシンが正常にバックアップされたことを示しています。
+. *Status* 列が *Completed*（完了）に変わるまで待ちます。これで VM のバックアップが成功しました。
 +
 image::2025_summer/module-05-bcdr/06_Backup_Completed.png[link=self, window=blank, width=100%]
 
 [[restore_backup]]
 == バックアップからのリストア
 
-. 左側のメニューで*Virtualization*をクリックしてから*VirtualMachines*をクリックします。中央のツリー列で*vmexamples-{user}*プロジェクトを展開して、*fedora02* VMをクリックします。
+. 左メニューの *Virtualization* -> *VirtualMachines* を選択し、プロジェクト `vmexamples-{user}` 内の *fedora02* VM をクリックします。
 +
 image::2025_spring/module-05-bcdr/07_Fedora02_Overview.png[link=self, window=blank, width=100%]
 
-. 仮想マシンを停止し、停止後、*Actions*ドロップダウンをクリックしてVM*Delete*オプションを選択します。
+. VM を停止 (*Stop*) させます。停止後、*Actions* メニューから *Delete* を選択して VM を完全に削除します。
 +
 image::2025_spring/module-05-bcdr/08_Delete_VM.png[link=self, window=blank, width=100%]
 
-. プロンプトが表示されたら、赤い*Delete*ボタンをクリックして、仮想マシンの削除を確認します。
+. 確認画面で赤い *Delete* ボタンをクリックします。
 +
 image::2025_spring/module-05-bcdr/09_Confirm_Delete.png[link=self, window=blank, width=100%]
 
-. 仮想マシンはインベントリから消えます。
+. VM が一覧から消えたことを確認してください。
 +
 image::2025_spring/module-05-bcdr/10_Deleted_VM.png[link=self, window=blank, width=100%]
 
-. *Operators*をクリックしてから*Installed Operators*をクリックし、*OADPオペレーター*を再度選択します。（*OADP-{user}*プロジェクトに切り替える必要がある場合があります。）
+. リストアを行うため、再度 *Operators* -> *Installed Operators* から *OADP* を選択します（プロジェクト `oadp-{user}` を選択しているか確認してください）。
 
-. 水平ナビゲーションバーを使用して*Restore*タブを見つけ、*Restore*タブをクリックしてから*Create Restore*を押します。
+. 上部タブの *Restore* を選択し、*Create Restore* ボタンをクリックします。
 +
 image::2025_summer/module-05-bcdr/11_Restore_Tab.png[link=self, window=blank, width=100%]
 
-. YAMLビューに切り替えて、コンテンツを以下の内容に置き換えます：
+. *YAML view* に切り替え、内容を以下の定義に置き換えます：
 +
 [source,yaml,role=execute,subs="attributes"]
 ----
@@ -147,19 +147,18 @@ spec:
   restorePVs: true
 ----
 
-. 下部の*Create*ボタンを押します。
+. 下部の *Create* ボタンをクリックします。
 +
 image::2025_spring/module-05-bcdr/12_Create_Restore_YAML.png[link=self, window=blank, width=100%]
 
-. *Status*列が*Completed*に変わるまで待ちます。
+. *Status* 列が *Completed* に変わるまで待ちます。
 +
 image::2025_summer/module-05-bcdr/13_Restore_Completed.png[link=self, window=blank, width=100%]
 
-. *Virtualization*に戻り、左側のメニューで*Virtual Machines*をクリックして、*fedora02*仮想マシンが復元されたことを確認します（*vmexamples-{user}*プロジェクト内）。その*Created*値は、ごく最近であることがわかります。
+. *Virtualization* パースペクティブに戻り、*fedora02* 仮想マシンが `vmexamples-{user}` プロジェクト内に復元されていることを確認します。作成日時を確認すると、ごく最近に復元されたものであることがわかります。
 +
 image::2025_spring/module-05-bcdr/14_VM_Restored.png[link=self, window=blank, width=100%]
 
 == まとめ
 
-仮想マシンの保護は、仮想化プラットフォームの重要な側面です。OpenShift仮想化は、OADPの使用などのネイティブ保護を可能にする複数の方法を提供するか、ストレージおよびバックアップパートナーがそれらのオファリングを統合することを可能にします。仮想マシンを保護する方法に関する質問がある場合は、ワークショップのプロクターに遠慮なく質問するか、OpenShift仮想化との互換性を判断するためにベンダーに問い合わせてください。
-
+仮想化プラットフォームにおいて VM のデータ保護は極めて重要です。OpenShift Virtualization では、OADP によるネイティブな保護に加え、多様なストレージ・バックアップパートナーの製品との統合が可能です。最適な保護手法については、Red Hat またはパートナーベンダーへお問い合わせください。
