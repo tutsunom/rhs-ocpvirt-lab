@@ -10,7 +10,7 @@
 * 一貫性のあるイノベーションの基盤を構築・展開する方法を学べます。
 * 無料デモや「仮想化移行評価」を活用したスピーディーな開始方法を案内します。
 
-詳細については、https://www.redhat.com/en/resources/15-reasons-adopt-openshift-virtualization-ebook[こちらのリンク^]をクリックするか、下記の QR コードをスキャンしてください。
+詳細については、**https://www.redhat.com/en/resources/15-reasons-adopt-openshift-virtualization-ebook[こちらのリンク^]**をクリックするか、下記の QR コードをスキャンしてください。
 
 image::2025_spring/conclusion/01_Ebook.png[link=self, window=blank, width=50%]
 
@@ -25,6 +25,6 @@ image::2025_spring/conclusion/01_Ebook.png[link=self, window=blank, width=50%]
 * **VMA レポートの提供:** 高レベルの推奨事項、設計上の考慮事項、および完全な移行に向けたカスタマイズ済みの提案書（プロポーザル）を提供します。
 * **確実な意思決定:** 移行の目的地、到達プロセス、必要な期間、およびコストを明確に把握し、プロジェクトの確実な遂行を支援します。
 
-詳細については、https://www.redhat.com/en/resources/virtualization-migration-assessment-datasheet[こちらのリンク^]をクリックするか、下記の QR コードをスキャンしてください。
+詳細については、**https://www.redhat.com/en/resources/virtualization-migration-assessment-datasheet[こちらのリンク^]**をクリックするか、下記の QR コードをスキャンしてください。
 
 image::2025_spring/conclusion/03_VMA_QR.png[link=self, window=blank, width=50%]
