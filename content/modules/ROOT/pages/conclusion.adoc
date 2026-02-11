@@ -8,6 +8,7 @@ image::2025_spring/conclusion/00_Thank_You.png[link=self, window=blank, width=10
 
 この {lab_name} をお楽しみいただけたなら幸いです。*OpenShift Virtualization* についての学びが、レガシーな仮想マシンのインポートや管理に役立つツールとして、またアプリケーション・モダン化への一歩として、皆様の今後の活動に寄与することを願っています。
 
+[[key_takeaways]]
 == 本ハンズオンワークショップのまとめ
 
 * OpenShift Virtualization はソリューション指向であり、成熟し、安定しており、かつ拡張性の高いソリューションを、すぐに使い始めることができる形で提供します。
@@ -18,6 +19,7 @@ image::2025_spring/conclusion/00_Thank_You.png[link=self, window=blank, width=10
 
 * OpenShift Virtualization は、従来のワークロードに対して強力な基盤を提供すると同時に、モダンなアプリケーション・プラットフォームを通じて将来に向けたスキルを習得する助けとなります。
 
+[[additional_info]]
 == 追加情報
 === Red Hat OpenShift Virtualization を採用すべき 15 の理由（無料電子書籍）
 
