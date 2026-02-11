@@ -1,6 +1,25 @@
-= 追加情報
+= まとめと追加情報
 
-== Red Hat OpenShift Virtualization を採用すべき 15 の理由（無料電子書籍）
+image::2025_spring/conclusion/00_Thank_You.png[link=self, window=blank, width=100%]
+
+本ラボを通じて、Azure Red Hat OpenShift（ARO）上の OpenShift Virtualization が、どのように仮想マシンを Kubernetes ベースのプラットフォームへ統合し、移行からモダン化への明確な道筋を提示できるかをご体験いただきました。
+ラボでは、Migration Toolkit for Virtualization（MTV）を用いた VM の作成と移行（高度なオプションやフックを含む）に始まり、PVC、スナップショット、クローンによるストレージの基礎、そして OADP を使用した VM 対応のバックアップとリストアを実施しました。
+また、テンプレートや InstanceType を使用した効率的なプロビジョニング、さらに Service と Route を介した VM アプリケーションの公開といった Day-2 運用を実行しました。これらにより、VM ワークロードがコンテナと同様のクラウドネイティブなワークフローに参加できることを実証しました。
+
+この {lab_name} をお楽しみいただけたなら幸いです。*OpenShift Virtualization* についての学びが、レガシーな仮想マシンのインポートや管理に役立つツールとして、またアプリケーション・モダン化への一歩として、皆様の今後の活動に寄与することを願っています。
+
+== 本ハンズオンワークショップのまとめ
+
+* OpenShift Virtualization はソリューション指向であり、成熟し、安定しており、かつ拡張性の高いソリューションを、すぐに使い始めることができる形で提供します。
+
+* OpenShift Virtualization は、ハイブリッドクラウド・アプリ開発プラットフォームを提供する「OpenShift Platform Plus」から、仮想化ワークロードのサポートに特化した「OpenShift Virtualization Engine」まで、あらゆるレベルの OpenShift サブスクリプションで利用可能です。
+
+* OpenShift Virtualization は広範なパートナー製品のエコシステムと完全に統合されており、その数は日々増え続けています。お使いのハードウェアおよびソフトウェアベンダーが OpenShift Virtualization をサポートしているか、ぜひご確認ください。
+
+* OpenShift Virtualization は、従来のワークロードに対して強力な基盤を提供すると同時に、モダンなアプリケーション・プラットフォームを通じて将来に向けたスキルを習得する助けとなります。
+
+== 追加情報
+=== Red Hat OpenShift Virtualization を採用すべき 15 の理由（無料電子書籍）
 
 仮想化インフラストラクチャをどのように進化させるべきか、そのヒントが詰まったガイドです。
 
@@ -14,9 +33,7 @@
 
 image::2025_spring/conclusion/01_Ebook.png[link=self, window=blank, width=50%]
 
----
-
-== 仮想化移行評価（Virtualization Migration Assessment）
+=== 仮想化移行評価（Virtualization Migration Assessment）
 
 移行に向けた具体的なロードマップを作成するための、Red Hat によるプロフェッショナルサービスです。
 
