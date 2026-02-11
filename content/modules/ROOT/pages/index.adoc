@@ -61,6 +61,7 @@ VM の作成、移行、自動化、ライフサイクル管理など、実際�
 == 次のステップ
 
 さらに詳しく知りたい場合は、以下のリソースを参照してください：
+
 * https://www.redhat.com/ja/technologies/cloud-computing/openshift/virtualization[Red Hat 公式製品ページ^]
 * https://learn.microsoft.com/ja-jp/azure/openshift/howto-create-openshift-virtualization[Microsoft 公式ドキュメント^]
 * https://www.youtube.com/playlist?list=PLaR6Rq6Z4IqeQeTosfoFzTyE_QmWZW6n_[YouTube デモプレイリスト^]
