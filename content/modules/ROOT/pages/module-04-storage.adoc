@@ -6,7 +6,7 @@ Red Hat OpenShift は、オンプレミスとクラウドプロバイダーの�
 
 ソフトウェア定義ストレージ (SDS) の例：IBM Fusion Data Foundation、OpenShift Data Foundation (ODF)、Portworx など。
 
-NOTE: このリストはすべてを網羅しているわけではありません。サポートされているすべてのストレージソリューションについては、https://catalog.redhat.com/platform/red-hat-openshift/virtualization#virtualization-infrastructure[Red Hat EcoSystem Catalog^] を参照してください。
+NOTE: このリストはすべてを網羅しているわけではありません。サポートされているすべてのストレージソリューションについては、**https://catalog.redhat.com/platform/red-hat-openshift/virtualization#virtualization-infrastructure[Red Hat EcoSystem Catalog^]** を参照してください。
 
 このセクションでは、Persistent Volume Claims (PVC) について説明します。PVC はプロバイダーからストレージをリクエストし、VM ディスクを保存するために使用されます。多くのストレージプロバイダーは、デバイスレベルでのスナップショットとクローン機能もサポートしています。CSI ドライバーとストレージデバイスでサポートされている機能については、各ベンダーの仕様を確認してください。
 

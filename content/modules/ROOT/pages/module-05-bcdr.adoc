@@ -19,7 +19,7 @@ Red Hat の提供ソリューション：
 * https://docs.trilio.io/kubernetes/appendix/backup-and-restore-virtual-machine-running-on-openshift-virtualization[*Trilio for Kubernetes*^]
 * https://docs.kasten.io/latest/usage/openshift_virtualization.html[*VEEAM Kasten*^]
 
-NOTE: このリストはすべてを網羅しているわけではありません。OpenShift Virtualization との互換性については、各ストレージまたはデータ保護ベンダーに確認するか、https://catalog.redhat.com/platform/red-hat-openshift/virtualization#virtualization-infrastructure[Red Hat EcoSystem Catalog^] を参照してください。
+NOTE: このリストはすべてを網羅しているわけではありません。OpenShift Virtualization との互換性については、各ストレージまたはデータ保護ベンダーに確認するか、**https://catalog.redhat.com/platform/red-hat-openshift/virtualization#virtualization-infrastructure[Red Hat EcoSystem Catalog^]** を参照してください。
 
 このラボでは、OADP を使用して仮想マシンのバックアップとリストア操作を実行します。
 
