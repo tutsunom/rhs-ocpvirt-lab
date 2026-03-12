@@ -57,9 +57,9 @@ NOTE: HAproxy (ロードバランサー) は、OpenShift ネイティブの *Ser
 
 移行元（ソース）環境のリソース（データストアやポートグループ）が、OpenShift 側のストレージクラスやネットワーク設定にどのようにマッピングされるかを理解するために、まず vSphere 側を確認します。
 
-. VMware vCenter にログインします：https://{vcenter_console}[vCenter Console^]
+. VMware vCenter にログインします: https://{vcenter_console}[vCenter Console^]
 . *Launch vSphere Client* をクリックします。
-. 以下の認証情報を使用します：
+. 以下の認証情報を使用します:
 - *ユーザー:* {vcenter_full_user}
 - *パスワード:* {vcenter_password}
 
@@ -113,7 +113,7 @@ NOTE: MTV 2.4 以降、管理者権限がなくてもアプリケーションチ
 +
 image::2025_summer/module-02-mtv/07_Create_VMWARE_Plan.png[link=self, window=blank, width=100%]
 
-. *Plan name* に `move-webapp-vmware` と入力します。プロジェクトが `mtv-{user}` であることを確認し、ソースプロバイダーとして *VMware* を選択します。
+. *Plan name* に `move-webapp-vmware` と入力します。プロジェクトが `mtv-{user}` であることを確認し、ソースプロバイダーとして *vmware* を選択します。
 +
 image::2025_summer/module-02-mtv/08_VMware_Source_Provider.png[link=self, window=blank, width=100%]
 
