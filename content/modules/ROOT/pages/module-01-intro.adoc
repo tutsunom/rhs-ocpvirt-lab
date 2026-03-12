@@ -27,7 +27,7 @@ OpenShift クラスターコンソールは {openshift_console_url}[こちら^] 
 +
 image::2025_spring/module-01-intro/00_Dev_Perspective.png[link=self, window=blank, width=100%]
 
-. 次に、左上隅の *開発者* をクリックして、*仮想化* パースペクティブに切り替えます。
+. 次に、左上隅の *開発者* をクリックして、*Virtualization* パースペクティブに切り替えます。
 +
 image::2025_spring/module-01-intro/01_Virt_Perspective.png[link=self, window=blank, width=100%]
 
@@ -38,7 +38,7 @@ image::2025_spring/module-01-intro/02_Welcome_Virt.png[link=self, window=blank, 
 [[explore_virt]]
 == OpenShift Virtualization の探索
 
-*仮想化* ビューに移動すると、*概要* ページが表示されます。このページでは、現在使用されているすべての仮想化リソースの全体像を確認できます。各項目を探索してみましょう。
+*Virtualization* ビューに移動すると、*概要* ページが表示されます。このページでは、現在使用されているすべての仮想化リソースの全体像を確認できます。各項目を探索してみましょう。
 
 image::2025_spring/module-01-intro/03_Virt_Overview.png[link=self, window=blank, width=100%]
 
@@ -54,7 +54,7 @@ image::2025_spring/module-01-intro/04_Tree_View.png[link=self, window=blank, wid
 +
 image::2025_spring/module-01-intro/05_Left_Menu.png[link=self, window=blank, width=100%]
 
-. 中央のセクションはプロジェクトビューです。OpenShift の他のオブジェクトと同様に、プロジェクト（Kubernetes ネームスペースの抽象化）は、リソース管理や権限などの境界となります。デフォルトでは、既存の VM を含むプロジェクトのみを表示するトグルスイッチがあります。現在、仮想マシンが含まれアクセス可能なプロジェクトは *vmimported-{user}* のみです。
+. 中央のセクションはプロジェクトビューです。OpenShift の他のオブジェクトと同様に、プロジェクト（Kubernetes ネームスペースの抽象化）は、リソース管理や権限などの境界となります。デフォルトでは、既存の VM を含むプロジェクトのみを表示するトグルスイッチがあります。現在、あなたがアクセス可能な仮想マシンが含まれるプロジェクトは *vmimported-{user}* のみです。
 +
 image::2025_spring/module-01-intro/06_Project_Tree.png[link=self, window=blank, width=100%]
 
@@ -85,7 +85,7 @@ image::2025_spring/module-01-intro/10_Column_Create.png[link=self, window=blank,
 +
 image::2025_spring/module-01-intro/11_Create_Project.png[link=self, window=blank, width=100%]
 +
-NOTE: 仮想マシン一覧のセクションはすぐにこの新しいプロジェクトを表示するように切り替わりますが、プロジェクト内に VM がまだ存在しないため、中央のツリービューにはすぐには反映されない場合があります。
+NOTE: 仮想マシン一覧のセクションはすぐにこの新しいプロジェクトを表示するように切り替わりますが、プロジェクト内に VM がまだ存在しないため、中央のツリービューには表示されない場合があります。新しいプロジェクトを確認するには、上部の "Show only projects with VirtualMachines" のトグルスイッチをオフにしてください。
 
 
 [[create_vm]]
@@ -109,7 +109,7 @@ image::2025_spring/module-01-intro/13_Create_VM_Templates.png[link=self, window=
 +
 image::2025_spring/module-01-intro/14_Create_VM_Quick.png[link=self, window=blank, width=100%]
 
-. 名前を *fedora01* に変更して、*仮想マシンをすばやく作成* をクリックします。
+. 名前を *fedora01* に変更して、*Quick create VirtualMachine* をクリックします。
 +
 image::2025_spring/module-01-intro/15_Create_VM_Quick_Name.png[link=self, window=blank, width=100%]
 
