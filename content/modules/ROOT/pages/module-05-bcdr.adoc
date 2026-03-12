@@ -17,7 +17,7 @@ Red Hat の提供ソリューション：
 * https://www.rubrik.com/solutions/openshift[*Rubrik for OpenShift*^]
 * https://storware.eu/solutions/virtual-machine-backup-and-recovery/openshift-virtualization-and-kubevirt/[*Storware Backup and Recovery*^]
 * https://docs.trilio.io/kubernetes/appendix/backup-and-restore-virtual-machine-running-on-openshift-virtualization[*Trilio for Kubernetes*^]
-* https://docs.kasten.io/latest/usage/openshift_virtualization.html[*VEEAM Kasten*^]
+* https://docs.kasten.io/latest/usage/openshift_virtualization.html[*Veeam Kasten*^]
 
 NOTE: このリストはすべてを網羅しているわけではありません。OpenShift Virtualization との互換性については、各ストレージまたはデータ保護ベンダーに確認するか、**https://catalog.redhat.com/platform/red-hat-openshift/virtualization#virtualization-infrastructure[Red Hat EcoSystem Catalog^]** を参照してください。
 
