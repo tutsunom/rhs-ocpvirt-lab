@@ -2,7 +2,7 @@
 
 == はじめに
 
-このセクションでは、https://docs.redhat.com/en/documentation/migration_toolkit_for_virtualization/2.8/[Migration Toolkit for Virtualization^] (MTV) を使用して、VMware vSphere から OpenShift へ仮想マシンをインポートします。MTV は、以下の 2 つのインポートモードをサポートしています：
+このセクションでは、https://docs.redhat.com/en/documentation/migration_toolkit_for_virtualization/2.8[Migration Toolkit for Virtualization^] (MTV) を使用して、VMware vSphere から OpenShift へ仮想マシンをインポートします。MTV は、以下の 2 つのインポートモードをサポートしています：
 
 * **コールドマイグレーション**: 移行開始前にソース VM をシャットダウンします。これがデフォルトの移行タイプです。
 * **ウォームマイグレーション**: ソース VM を実行したままデータをコピーします。データの大部分が転送された後、VM を一時的にシャットダウンして最終的な差分データをコピーします。新しい VM の起動までのダウンタイムを大幅に短縮できます。
