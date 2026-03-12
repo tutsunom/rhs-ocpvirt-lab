@@ -134,7 +134,7 @@ image::2025_spring/module-04-storage/16_VM_Running.png[link=self, window=blank, 
 +
 image::2025_spring/module-04-storage/17_Overview_Actions_Clone.png[link=self, window=blank, width=100%]
 
-. 名前を *fedora02* とし、*Start VirtualMachine on clone*（クローン後に起動）にチェックを入れた状態で *Clone* をクリックします。
+. 名前を *fedora02* とし、*Start VirtualMachine on clone*（クローン後に起動）にチェックをしない状態で *Clone* をクリックします。
 +
 image::2025_spring/module-04-storage/18_VM_Clone_Dialog.png[link=self, window=blank, width=100%]
 
