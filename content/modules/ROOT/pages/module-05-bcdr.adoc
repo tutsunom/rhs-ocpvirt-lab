@@ -155,7 +155,7 @@ image::2025_spring/module-05-bcdr/12_Create_Restore_YAML.png[link=self, window=b
 +
 image::2025_summer/module-05-bcdr/13_Restore_Completed.png[link=self, window=blank, width=100%]
 
-. *Virtualization* パースペクティブに戻り、*fedora02* 仮想マシンが `vmexamples-{user}` プロジェクト内に復元されていることを確認します。作成日時を確認すると、ごく最近に復元されたものであることがわかります。
+. *Virtualization* メニューに戻り、*fedora02* 仮想マシンが `vmexamples-{user}` プロジェクト内に復元されていることを確認します。作成日時を確認すると、ごく最近に復元されたものであることがわかります。
 +
 image::2025_spring/module-05-bcdr/14_VM_Restored.png[link=self, window=blank, width=100%]
 
